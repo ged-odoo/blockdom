@@ -1,6 +1,6 @@
-import { mount, createBlock, multi, config } from "../../src/bdom";
+import { mount, createBlock, multi, config } from "../src";
 // import { defaultHandler, setupMainHandler } from "../../src/bdom/block";
-import { makeTestFixture } from "../helpers";
+import { makeTestFixture } from "./helpers";
 
 //------------------------------------------------------------------------------
 // Setup and helpers

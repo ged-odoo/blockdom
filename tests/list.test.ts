@@ -1,5 +1,5 @@
-import { list, mount, multi, patch, text, createBlock, VNode } from "../../src/bdom";
-import { makeTestFixture } from "../helpers";
+import { list, mount, multi, patch, text, createBlock, VNode } from "../src";
+import { makeTestFixture } from "./helpers";
 
 //------------------------------------------------------------------------------
 // Setup and helpers

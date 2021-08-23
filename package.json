@@ -30,7 +30,13 @@
   "homepage": "https://github.com/ged-odoo/blockdom",
   "devDependencies": {
     "@types/jest": "^27.0.1",
+    "@types/jsdom": "^16.2.13",
+    "@types/node": "^16.7.1",
+    "@types/web": "0.0.22",
     "jest": "^27.0.6",
+    "jest-dom": "^4.0.0",
+    "jest-environment-jsdom": "^27.0.6",
+    "jsdom": "^17.0.0",
     "prettier": "^2.3.2",
     "rollup": "^2.56.3",
     "rollup-plugin-terser": "^7.0.2",
@@ -38,25 +44,6 @@
     "ts-jest": "^27.0.5",
     "typescript": "^4.3.5",
     "uglify-es": "^3.3.9"
-  },
-  "jest": {
-    "roots": [
-      "<rootDir>/src",
-      "<rootDir>/tests"
-    ],
-    "transform": {
-      "^.+\\.ts?$": "ts-jest"
-    },
-    "verbose": false,
-    "testRegex": "(/tests/.*(test|spec))\\.ts?$",
-    "moduleFileExtensions": [
-      "ts",
-      "tsx",
-      "js",
-      "jsx",
-      "json",
-      "node"
-    ]
   },
   "prettier": {
     "printWidth": 100,

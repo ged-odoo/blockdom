@@ -1,5 +1,5 @@
-import { html, mount, patch, text } from "../../src/bdom";
-import { makeTestFixture } from "../helpers";
+import { html, mount, patch, text } from "../src";
+import { makeTestFixture } from "./helpers";
 
 //------------------------------------------------------------------------------
 // Setup and helpers

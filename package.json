@@ -1,0 +1,65 @@
+{
+  "name": "blockdom",
+  "version": "0.9.0",
+  "description": "virtual dom library",
+  "main": "dist/blockdom.cjs.js",
+  "browser": "dist/blockdom.iife.js",
+  "module": "dist/blockdom.es.js",
+  "types": "dist/types/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "engines": {
+    "node": ">=10.15.3"
+  },
+  "scripts": {
+    "build": "rollup -c",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "prettier": "prettier {src/*.ts,src/**/*.ts,tests/*.ts,tests/**/*.ts,doc/*.md,doc/**/*.md} --write"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ged-odoo/blockdom.git"
+  },
+  "author": "Géry Debongnie",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/ged-odoo/blockdom/issues"
+  },
+  "homepage": "https://github.com/ged-odoo/blockdom",
+  "devDependencies": {
+    "@types/jest": "^27.0.1",
+    "jest": "^27.0.6",
+    "prettier": "^2.3.2",
+    "rollup": "^2.56.3",
+    "rollup-plugin-terser": "^7.0.2",
+    "rollup-plugin-typescript2": "^0.30.0",
+    "ts-jest": "^27.0.5",
+    "typescript": "^4.3.5",
+    "uglify-es": "^3.3.9"
+  },
+  "jest": {
+    "roots": [
+      "<rootDir>/src",
+      "<rootDir>/tests"
+    ],
+    "transform": {
+      "^.+\\.ts?$": "ts-jest"
+    },
+    "verbose": false,
+    "testRegex": "(/tests/.*(test|spec))\\.ts?$",
+    "moduleFileExtensions": [
+      "ts",
+      "tsx",
+      "js",
+      "jsx",
+      "json",
+      "node"
+    ]
+  },
+  "prettier": {
+    "printWidth": 100,
+    "endOfLine": "auto"
+  }
+}

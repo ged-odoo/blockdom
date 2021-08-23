@@ -1,4 +1,4 @@
-import { mount, createBlock, multi, config } from "../src";
+import { mount, createBlock, multi, config, patch } from "../src";
 // import { defaultHandler, setupMainHandler } from "../../src/bdom/block";
 import { makeTestFixture } from "./helpers";
 
@@ -18,6 +18,41 @@ afterEach(() => {
   fixture.remove();
 });
 
+test("simple event handling, with function", async () => {
+  const block = createBlock('<div owl-handler-0="click"></div>');
+  let n = 0;
+  const tree = block([() => n++]);
+
+  mount(tree, fixture);
+  expect(fixture.innerHTML).toBe("<div></div>");
+
+  expect(fixture.firstChild).toBeInstanceOf(HTMLDivElement);
+  expect(n).toBe(0);
+  (fixture.firstChild as HTMLDivElement).click();
+  expect(n).toBe(1);
+});
+
+test("simple event handling, with function and argument", async () => {
+  const block = createBlock('<div owl-handler-0="click"></div>');
+  let n = 0;
+  const onClick = (arg: number) => {
+    n += arg;
+  };
+  const tree = block([[onClick, 3]]);
+
+  mount(tree, fixture);
+  expect(fixture.innerHTML).toBe("<div></div>");
+
+  expect(fixture.firstChild).toBeInstanceOf(HTMLDivElement);
+  expect(n).toBe(0);
+  (fixture.firstChild as HTMLDivElement).click();
+  expect(n).toBe(3);
+
+  patch(tree, block([[onClick, 5]]));
+  (fixture.firstChild as HTMLDivElement).click();
+  expect(n).toBe(8);
+});
+
 test("simple event handling ", async () => {
   config.mainEventHandler = (data, ev) => {
     if (typeof data === "function") {
@@ -32,20 +67,6 @@ test("simple event handling ", async () => {
   let n = 0;
   const obj = { f: () => n++ };
   const tree = block([[obj, "f"]]);
-
-  mount(tree, fixture);
-  expect(fixture.innerHTML).toBe("<div></div>");
-
-  expect(fixture.firstChild).toBeInstanceOf(HTMLDivElement);
-  expect(n).toBe(0);
-  (fixture.firstChild as HTMLDivElement).click();
-  expect(n).toBe(1);
-});
-
-test("simple event handling, with function", async () => {
-  const block = createBlock('<div owl-handler-0="click"></div>');
-  let n = 0;
-  const tree = block([() => n++]);
 
   mount(tree, fixture);
   expect(fixture.innerHTML).toBe("<div></div>");

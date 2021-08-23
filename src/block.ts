@@ -14,7 +14,13 @@ const NO_OP = () => {};
 
 export const config = {
   shouldNormalizeDom: true,
-  mainEventHandler: (data: any, ev: Event) => data(ev),
+  mainEventHandler: (data: any, ev: Event) => {
+    if (typeof data === "function") {
+      data(ev);
+    } else if (Array.isArray(data)) {
+      data[0](data[1], ev);
+    }
+  },
 };
 
 // -----------------------------------------------------------------------------

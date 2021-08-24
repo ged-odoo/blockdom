@@ -33,3 +33,8 @@ export function remove(vnode: VNode) {
   vnode.beforeRemove();
   vnode.remove();
 }
+
+export function withKey(vnode: VNode, key: any) {
+  vnode.key = key;
+  return vnode;
+}

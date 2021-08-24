@@ -1,4 +1,4 @@
-import { list, mount, multi, patch, text, createBlock, VNode } from "../src";
+import { list, mount, multi, patch, text, createBlock, VNode, withKey } from "../src";
 import { makeTestFixture } from "./helpers";
 
 //------------------------------------------------------------------------------
@@ -16,9 +16,7 @@ afterEach(() => {
 });
 
 function kText(str: string, key: any): VNode {
-  const block = text(str);
-  block.key = key;
-  return block;
+  return withKey(text(str), key);
 }
 
 function n(n: number) {
@@ -29,16 +27,12 @@ const span = createBlock("<span><block-text-0/></span>");
 const p = createBlock("<p><block-text-0/></p>");
 
 function kSpan(str: string, key: any): VNode {
-  const block = span([str]);
-  block.key = key;
-  return block;
+  return withKey(span([str]), key);
 }
 
 function kPair(n: number): VNode {
   const bnodes = [p([String(n)]), p([String(n)])];
-  const block = multi(bnodes);
-  block.key = n;
-  return block;
+  return withKey(multi(bnodes), n);
 }
 
 describe("list node: misc", () => {

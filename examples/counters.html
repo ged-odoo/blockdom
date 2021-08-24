@@ -14,14 +14,14 @@
 
       const counterBlock = createBlock(`
         <div class="counter">
-            <button owl-handler-1="click">Increment</button>
-            <span>Value: <owl-text-0/></span>
+            <button block-handler-1="click">Increment</button>
+            <span>Value: <block-text-0/></span>
         </div>`);
 
       const mainBlock = createBlock(`
         <div>
-            <div><button owl-handler-0="click">Add a counter</button></div>
-            <div><owl-child-0/></div>
+            <div><button block-handler-0="click">Add a counter</button></div>
+            <div><block-child-0/></div>
         </div>`);
 
       const state = [{ id: 0, value: 3 }];

@@ -165,13 +165,13 @@
             case 1: {
                 // HTMLElement
                 const tagName = node.tagName;
-                if (tagName.startsWith("owl-text-")) {
-                    const index = parseInt(tagName.slice(9), 10);
+                if (tagName.startsWith("block-text-")) {
+                    const index = parseInt(tagName.slice(11), 10);
                     ctx.info.push({ index, path: ctx.path.slice(), type: "text" });
                     return document.createTextNode("");
                 }
-                if (tagName.startsWith("owl-child-")) {
-                    const index = parseInt(tagName.slice(10), 10);
+                if (tagName.startsWith("block-child-")) {
+                    const index = parseInt(tagName.slice(12), 10);
                     ctx.info.push({ index, type: "child", path: ctx.path.slice(), parentPath });
                     return document.createTextNode("");
                 }
@@ -180,8 +180,8 @@
                 for (let i = 0; i < attrs.length; i++) {
                     const attrName = attrs[i].name;
                     const attrValue = attrs[i].value;
-                    if (attrName.startsWith("owl-handler-")) {
-                        const index = parseInt(attrName.slice(12), 10);
+                    if (attrName.startsWith("block-handler-")) {
+                        const index = parseInt(attrName.slice(14), 10);
                         ctx.info.push({
                             index,
                             path: ctx.path.slice(),
@@ -189,8 +189,8 @@
                             event: attrValue,
                         });
                     }
-                    else if (attrName.startsWith("owl-attribute-")) {
-                        const index = parseInt(attrName.slice(14), 10);
+                    else if (attrName.startsWith("block-attribute-")) {
+                        const index = parseInt(attrName.slice(16), 10);
                         ctx.info.push({
                             index,
                             path: ctx.path.slice(),
@@ -199,14 +199,14 @@
                             tag: tagName,
                         });
                     }
-                    else if (attrName === "owl-attributes") {
+                    else if (attrName === "block-attributes") {
                         ctx.info.push({
                             index: parseInt(attrValue, 10),
                             path: ctx.path.slice(),
                             type: "attributes",
                         });
                     }
-                    else if (attrName === "owl-ref") {
+                    else if (attrName === "block-ref") {
                         ctx.info.push({
                             index: parseInt(attrValue, 10),
                             path: ctx.path.slice(),
@@ -220,7 +220,7 @@
                 let children = node.childNodes;
                 if (children.length === 1) {
                     const childNode = children[0];
-                    if (childNode.nodeType === 1 && childNode.tagName.startsWith("owl-child-")) {
+                    if (childNode.nodeType === 1 && childNode.tagName.startsWith("block-child-")) {
                         const tagName = childNode.tagName;
                         const index = parseInt(tagName.slice(10), 10);
                         ctx.info.push({ index, type: "child", path: ctx.path.slice(), isOnlyChild: true });

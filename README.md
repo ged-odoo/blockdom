@@ -5,7 +5,9 @@ A very fast virtual dom library
 - [Introduction](#introduction)
 - [Example](#example)
 - [Reference](#reference)
-  - [Reactive System](#reactive-system)
+  - [Manipulating vnodes](#manipulating-vnodes)
+  - [Creating vnodes](#creating-vnodes)
+  - [Configuration](#configuration)
 - [Performance Notes](#performance-notes)
 - [About this project](#about-this-project)
 - [Credits](#credits)
@@ -13,7 +15,7 @@ A very fast virtual dom library
 ## Introduction
 
 `blockdom` is a fast virtual dom library. Its main selling point is
-that it does not work at the granularity of a single html element, but instead,
+that it does not work at the granularity of a single html element, but instead
 it works with `blocks`: html elements, with arbitrary content.
 
 So, instead of doing something like `h('div', {}, [...some children])`, we can
@@ -42,6 +44,9 @@ comparing the performance of a handcrafted vanilla js implementation against
 virtual dom implementation).
 
 ![Benchmark](benchmark.png "Benchmark")
+
+Note: yes, I had to run the benchmark a few times to beat `solid`. This is totally
+cheating. But still impressive, if you ask me :)
 
 `blockdom` can update the dom, manage event handlers, support fragments (multi-root elements).
 It is however not a fully featured framework. Its goal is being a compilation target
@@ -83,7 +88,7 @@ function incrementCounter(id) {
 function render(state) {
   const counters = state.map((c) => {
     const handler = [incrementCounter, c.id];
-    return Object.assign(counterBlock([c.value, handler]), { key: c.id });
+    return withKey(counterBlock([c.value, handler]), c.id);
   });
   return mainBlock([addCounter], [list(counters)]);
 }
@@ -99,7 +104,8 @@ function update() {
 Notice that block types are first created, with special attributes or tags such as
 `<block-text-0 />` or `block-handler-1="click"`. What happens is that `blockdom`
 then process the block template, find all these special tags/attributes and generate
-fast functions that will create and/or update these values.
+fast functions that will create and/or update these values. The number corresponds
+to the index of the data given when the block is constructed.
 
 The `examples` folder contains the complete code for this example.
 
@@ -107,6 +113,25 @@ The `examples` folder contains the complete code for this example.
 
 `blockdom` api is quite small: 6 function to create vnodes, 3 functions to manipulate
 vdom trees and one configuration object.
+
+### Manipulating vnodes
+
+`blockdom` provide three functions:
+
+- `mount(vnode, target)` is called initially to mount a vnode tree inside a
+  target (which should be an html element). This will create the relevant DOM and
+  store the proper references inside the vnodes.
+
+- `patch(vnode1, vnode2)` is used to update a (already mounted) vnode tree with
+  a new vnode tree. This method will patch the dom, and update the internal
+  references in `vnode`. `vnode2` is left unchanged, and can be discarded.
+  Also, note that if `vnode1` and `vnode2` are the same reference, then the
+  patching process will be entirely skipped. This is the way we can implement
+  memoization.
+
+- `remove(vnode)` is a method that will remove a (already mounted) vnode tree.
+
+### Creating vnodes
 
 First, let us talk about the various vnode types:
 
@@ -119,9 +144,7 @@ First, let us talk about the various vnode types:
 | `toggler` | a container node that allows switching dynamically between different type of subnodes  |
 | `html`    | represent an arbitrary html content                                                    |
 
-### Creating vnodes
-
-###### Blocks
+##### Blocks
 
 The most important vnode type is a block. Since each block is actually unique,
 we need to first generate a block builder function:
@@ -202,7 +225,7 @@ const tree = block([someFunction]);
 The function `someFunction` will be called with the htmlelement `<p>` when it is
 created, and then later with `null` when it is removed from the dom.
 
-###### multi
+##### multi
 
 The multi block is useful when we deal with a fixed number of vnodes. For example,
 a template with multiple consecutive elements. Also, some or all of its vnodes
@@ -220,7 +243,7 @@ const otherTree = multi([block1, undefined]); // represents `<div>1</div>`
 
 Each children can be a mix of any type.
 
-###### list
+##### list
 
 A `list` vnode represents a dynamic collection of vnodes, all of them with the
 same type. Each of these nodes need to have a key to properly reconcile them.
@@ -239,7 +262,7 @@ const tree = list(items); // represents <p>apple</p><p>pear</p>
 
 Note the use of the `withKey` helper.
 
-###### text
+##### text
 
 Most text are inserted inside a block with `block-text-{index}`. However, in
 some cases, it is useful to be able to manipulate directly just a simple text
@@ -250,7 +273,7 @@ node:
 const tree = multi([text("black"), text("yellow"), text("red")]);
 ```
 
-###### toggler
+##### toggler
 
 As mentioned above, `blockdom` need each vnode in a patch operation to be of the
 same exact type. However, it is not always known before hand what the concrete
@@ -271,13 +294,49 @@ When it is patched, it compares the values of the keys: if they are the same,
 it will simply patch the child vnode. If they are different, it will remove the
 previous one and mount the new vnode in its place.
 
-### Manipulating vnode trees
+##### html
 
-The 3 functions are:
+This should be used with caution: this vnode type is used to insert arbitrary
+html into the DOM:
 
-- `mount(vnode, target)`
-- `patch(vnode1, vnode2)`
-- `remove(vnode)`
+```js
+const tree = html("<div>hey</div>");
+```
+
+This should be avoided most of the time. However, it happens that we need to
+display some (hopefully safe/sanitized) html coming from the database. In that
+case, the `html` vnode type is here to perform the job.
+
+### Configuration
+
+Here is a list of every configuration options in `blockdom`:
+
+- `shouldNormalizeDom (boolean, default=true)` If true, `blockdom` will normalize
+  the DOM generated by blocks. This means removing text nodes that only contains
+  spaces.
+
+  ```js
+  config.shouldNormalizeDom = true;
+  ```
+
+- `mainEventHandler (function taking (data, event))`. Each event generated by
+  handlers will go through that method. By default, `blockdom` uses
+  the following code:
+
+  ```js
+  config.mainEventHandler = (data, event) => {
+    if (typeof data === "function") {
+      data(ev);
+    } else if (Array.isArray(data)) {
+      data[0](data[1], ev);
+    }
+  };
+  ```
+
+  This means that the data given to the block can be either a function or a pair
+  `[function, argument]`. Overriding this may be helpful if the code using
+  `blockdom` has different needs (for example, checking if a component is still
+  alive).
 
 ## Performance Notes
 
@@ -373,6 +432,10 @@ project.
   need the ability to split the rendering process in two phases, so we can
   choose to commit a rendering (or not if for some reason it is no longer useful).
   In that case, I do not see how to proceed without a virtual dom.
+
+- _This sucks. blockdom is useless/slow because of X/Y_. Great, please tell me
+  more. I genuinely want to improve this, and helpful criticism is always
+  welcome.
 
 ## Credits
 

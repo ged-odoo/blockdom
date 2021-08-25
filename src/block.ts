@@ -535,6 +535,8 @@ function createBlockClass(
   let childN = childrenLocs.length;
   const refN = colLen + 1;
 
+  // these values are defined here to make them faster to lookup in the class
+  // block scope
   const nodeCloneNode = nodeProto.cloneNode;
   const nodeInsertBefore = nodeProto.insertBefore;
   const elementRemove = elementProto.remove;

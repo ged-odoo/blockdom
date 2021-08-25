@@ -16,7 +16,8 @@
     "build": "rollup -c",
     "test": "jest",
     "test:watch": "jest --watch",
-    "prettier": "prettier {src/*.ts,src/**/*.ts,tests/*.ts,tests/**/*.ts,doc/*.md,doc/**/*.md,README.md} --write"
+    "prettier": "prettier {src/*.ts,src/**/*.ts,tests/*.ts,tests/**/*.ts,doc/*.md,doc/**/*.md,README.md} --write",
+    "prepare-benchmark": "bash ./benchmark/run.sh"
   },
   "repository": {
     "type": "git",

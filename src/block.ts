@@ -1,3 +1,4 @@
+import { config } from "./config";
 import type { VNode } from "./index";
 import { toText } from "./text";
 
@@ -11,17 +12,6 @@ const nodeGetFirstChild = getDescriptor(nodeProto, "firstChild").get!;
 const nodeGetNextSibling = getDescriptor(nodeProto, "nextSibling").get!;
 
 const NO_OP = () => {};
-
-export const config = {
-  shouldNormalizeDom: true,
-  mainEventHandler: (data: any, ev: Event) => {
-    if (typeof data === "function") {
-      data(ev);
-    } else if (Array.isArray(data)) {
-      data[0](data[1], ev);
-    }
-  },
-};
 
 // -----------------------------------------------------------------------------
 // Block

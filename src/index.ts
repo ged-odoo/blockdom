@@ -28,7 +28,9 @@ export function mount(vnode: VNode, fixture: HTMLElement) {
 }
 
 export function patch(vnode1: VNode, vnode2: VNode) {
-  vnode1.patch(vnode2);
+  if (vnode1 !== vnode2) {
+    vnode1.patch(vnode2);
+  }
 }
 
 export function remove(vnode: VNode) {

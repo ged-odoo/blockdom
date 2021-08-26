@@ -1,6 +1,6 @@
 (function () {
 
-  const { list, mount, patch, createBlock } = blockdom;
+  const { list, mount, patch, createBlock, withKey } = blockdom;
 
   let idCounter = 1;
   const adjectives = ["pretty", "large", "big", "small", "tall", "short", "long", "handsome", "plain", "quaint", "clean", "elegant", "easy", "angry", "crazy", "helpful", "mushy", "odd", "unsightly", "adorable", "important", "inexpensive", "cheap", "expensive", "fancy"],
@@ -132,31 +132,36 @@
   // ---------------------------------------------------------------------------
 
   function Row(row) {
+    let rowId = row.id;
     return rowBlock([
-      row.id,
+      rowId,
       row.label,
-      row.id === store.selectedRowId ? "danger" : "",
-      [store.selectRow, row.id],
-      [store.removeRow, row.id],
+      rowId === store.selectedRowId ? "danger" : "",
+      [store.selectRow, rowId],
+      [store.removeRow, rowId],
     ]);
   }
   
   let cache = {};
   let nextCache = {};
   function Memo(row) {
-    let deps = [row.label, row.id === store.selectedRowId];
-    let item = cache[row.id];
+    let rowId = row.id;
+    let deps = [row.label, rowId === store.selectedRowId];
+    let item = cache[rowId];
     if (item && item.deps[0] === deps[0] && item.deps[1] === deps[1]) {
-      nextCache[row.id] = item;
+      nextCache[rowId] = item;
       return item;
     }
-    return (nextCache[row.id] = Object.assign(Row(row), {deps}));
+    const rowBlock = Row(row);
+    rowBlock.deps = deps;
+    nextCache[rowId] = rowBlock;
+    return rowBlock;
   }
 
   function RowList(rows) {
-    let items = rows.map(row => Object.assign(Memo(row), {key: row.id}));
     cache = nextCache;
     nextCache = {};
+    let items = rows.map(row => withKey(Memo(row), row.id));
     return list(items);
   }
 

@@ -581,8 +581,6 @@ function createBlockClass(
           const w = collectors[i];
           refs[i + 1] = w.getVal.call(refs[w.prevIdx]);
         }
-        this.refs = refs;
-        // console.warn(refs)
 
         // applying data to all update points
         if (locLen) {
@@ -614,9 +612,7 @@ function createBlockClass(
       this.parentEl = parent;
     }
     patch(other: Block) {
-      if (this === other) {
-        return;
-      }
+      // note: we don't check for equality here. It should be done by the caller
       const refs = this.refs!;
       // update texts/attributes/
       if (locLen) {
@@ -647,7 +643,9 @@ function createBlockClass(
           const child2 = children2![i];
           if (child1) {
             if (child2) {
-              child1.patch(child2);
+              if (child1 !== child2) {
+                child1.patch(child2);
+              }
             } else {
               child1.beforeRemove();
               child1.remove();

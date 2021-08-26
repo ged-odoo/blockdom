@@ -95,7 +95,7 @@ describe("properties", () => {
 
     // rerender with a different value, and patch actual dom, to check that
     // input value was properly reset by owl
-    tree.patch(block(["potato"]));
+    patch(tree, block(["potato"]));
     expect(input.value).toBe("potato");
   });
 

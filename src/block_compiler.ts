@@ -1,4 +1,5 @@
 import { config } from "./config";
+import { createEventHandler } from "./events";
 import type { VNode } from "./index";
 import { toText } from "./text";
 
@@ -323,35 +324,6 @@ function makePropSetter(name: string) {
   };
 }
 
-const nativeToSyntheticEvent = (event: Event, name: string) => {
-  const eventKey = `__event__${name}`;
-  let dom = event.target;
-  while (dom !== null) {
-    const data = (dom as any)[eventKey];
-    if (data) {
-      config.mainEventHandler(data, event);
-      return;
-    }
-    dom = (dom as any).parentNode;
-  }
-};
-
-const CONFIGURED_SYNTHETIC_EVENTS: { [event: string]: boolean } = {};
-function setupSyntheticEvent(name: string) {
-  if (CONFIGURED_SYNTHETIC_EVENTS[name]) {
-    return;
-  }
-  document.addEventListener(name, (event) => nativeToSyntheticEvent(event, name));
-  CONFIGURED_SYNTHETIC_EVENTS[name] = true;
-}
-
-function createEventHandler(event: string) {
-  const key = `__event__${event}`;
-  return function setupHandler(this: HTMLElement, data: any) {
-    (this as any)[key] = data;
-  };
-}
-
 function setText(this: Text, value: any) {
   characterDataSetData.call(this, toText(value));
 }
@@ -446,7 +418,6 @@ function compileBlock(info: BlockInfo[], template: HTMLElement): BlockType {
         case "handler": {
           const refIdx = line.refIndex!;
           const setupHandler = createEventHandler(line.event!);
-          setupSyntheticEvent(line.event!);
           locations.push({
             idx: line.index,
             refIdx,

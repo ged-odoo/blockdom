@@ -1,6 +1,6 @@
 name: Test prs
   pull_request:
-    branches: [main]:
+    branches: [main]
 jobs:
   build:
     runs-on: ubuntu-latest

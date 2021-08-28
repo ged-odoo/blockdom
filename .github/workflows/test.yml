@@ -1,4 +1,5 @@
 name: Test prs
+on:
   pull_request:
     branches: [main]
 jobs:

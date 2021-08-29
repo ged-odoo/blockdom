@@ -32,7 +32,7 @@ jobs:
 
       - name: Identify for release
         run: |
-          git config --global user.email "user@gmail.com"
+          git config --global user.email "ged@odoo.com"
           git config --global user.name "Géry Debongnie"
 
       - name: Automated Version Bump

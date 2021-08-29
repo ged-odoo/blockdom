@@ -23,6 +23,7 @@
     "type": "git",
     "url": "git+https://github.com/ged-odoo/blockdom.git"
   },
+  "keywords": ["virtual dom"],
   "author": "Géry Debongnie",
   "license": "MIT",
   "bugs": {

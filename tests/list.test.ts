@@ -81,6 +81,35 @@ describe("list node: misc", () => {
     patch(tree, block([], [list([1, 2, 3].map(n))]));
     expect(fixture.innerHTML).toBe("<div>123</div>");
   });
+
+  test("list of lists", async () => {
+    const tree = list([
+      withKey(list([kText("a1", "1"), kText("a2", "2")]), "a"),
+      withKey(list([kText("b1", "1"), kText("b2", "2")]), "b"),
+    ]);
+    mount(tree, fixture);
+    expect(fixture.innerHTML).toBe("a1a2b1b2");
+
+    patch(
+      tree,
+      list([
+        withKey(list([kText("b1", "1"), kText("b2", "2")]), "b"),
+        withKey(list([kText("a1", "1"), kText("a2", "2")]), "a"),
+      ])
+    );
+
+    expect(fixture.innerHTML).toBe("b1b2a1a2");
+
+    patch(
+      tree,
+      list([
+        withKey(list([kText("a2", "2"), kText("a1", "1")]), "a"),
+        withKey(list([kText("b2", "2"), kText("b1", "1")]), "b"),
+      ])
+    );
+
+    expect(fixture.innerHTML).toBe("a2a1b2b1");
+  });
 });
 
 describe("adding/removing elements", () => {

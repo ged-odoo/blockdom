@@ -39,7 +39,15 @@ class VList {
   }
 
   moveBefore(other: VList | null, afterNode: Node | null) {
-    // todo
+    if (other) {
+      const next = other!.children[0];
+      afterNode = (next ? next.firstNode() : other!.anchor) || null;
+    }
+    const children = this.children;
+    for (let i = 0, l = children.length; i < l; i++) {
+      children[i].moveBefore(null, afterNode);
+    }
+    this.parentEl!.insertBefore(this.anchor!, afterNode);
   }
 
   patch(other: VList, withBeforeRemove: boolean) {

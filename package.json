@@ -1,6 +1,6 @@
 {
   "name": "blockdom",
-  "version": "0.9.0",
+  "version": "0.9.1",
   "description": "virtual dom library",
   "main": "dist/blockdom.cjs.js",
   "browser": "dist/blockdom.iife.js",
@@ -25,7 +25,9 @@
     "type": "git",
     "url": "git+https://github.com/ged-odoo/blockdom.git"
   },
-  "keywords": ["virtual dom"],
+  "keywords": [
+    "virtual dom"
+  ],
   "author": "Géry Debongnie",
   "license": "MIT",
   "bugs": {

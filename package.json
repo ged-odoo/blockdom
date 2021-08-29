@@ -2,7 +2,7 @@
   "name": "blockdom",
   "version": "0.9.3",
   "description": "virtual dom library",
-  "main": "dist/blockdom.cjs.js",
+  "main": "dist/index.js",
   "browser": "dist/blockdom.iife.js",
   "module": "dist/blockdom.es.js",
   "types": "dist/types/index.d.ts",

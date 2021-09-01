@@ -24,34 +24,58 @@ const nodeGetNextSibling = getDescriptor(nodeProto, "nextSibling").get!;
 const NO_OP = () => {};
 
 // -----------------------------------------------------------------------------
-// Block
+// Main compiler code
 // -----------------------------------------------------------------------------
 
 type BlockType = (data?: any[], children?: VNode[]) => VNode;
 
 const cache: { [key: string]: BlockType } = {};
 
+/**
+ * Compiling blocks is a multi-step process:
+ *
+ * 1. build an IntermediateTree from the HTML element. This intermediate tree
+ *    is a binary tree structure that encode dynamic info sub nodes, and the
+ *    path required to reach them
+ * 2. process the tree to build a block context, which is an object that aggregate
+ *    all dynamic info in a list, and also, all ref indexes.
+ * 3. process the context to build appropriate builder/setter functions
+ * 4. make a dynamic block class, which will efficiently collect references and
+ *    create/update dynamic locations/children
+ *
+ * @param str
+ * @returns a new block type, that can build concrete blocks
+ */
 export function createBlock(str: string): BlockType {
   if (str in cache) {
     return cache[str];
   }
-  const info: BuilderContext["info"] = [];
-  const ctx: BuilderContext = {
-    path: ["el"],
-    info,
-  };
 
+  // step 0: prepare html base element
   const doc = new DOMParser().parseFromString(str, "text/xml");
   const node = doc.firstChild!;
   if (config.shouldNormalizeDom) {
     normalizeNode(node as any);
   }
-  const template = processDescription(node, ctx) as any;
 
-  const result = compileBlock(info, template);
+  // step 1: prepare intermediate tree
+  const tree = buildTree(node);
+  // console.warn(tree);
+
+  // step 2: prepare block context
+  const context = buildContext(tree);
+  // console.warn(context);
+
+  // step 3: build the final block class
+  const template = tree.el as HTMLElement;
+  const result = buildBlock(template, context);
   cache[str] = result;
   return result;
 }
+
+// -----------------------------------------------------------------------------
+// Helper
+// -----------------------------------------------------------------------------
 
 function normalizeNode(node: HTMLElement | Text) {
   if (node.nodeType === Node.TEXT_NODE) {
@@ -71,116 +95,175 @@ function normalizeNode(node: HTMLElement | Text) {
 }
 
 // -----------------------------------------------------------------------------
-// Process description
+// building a intermediate tree
 // -----------------------------------------------------------------------------
 
-interface BlockInfo {
-  index: number;
-  refIndex?: number;
+interface DynamicInfo {
+  idx: number;
+  refIdx?: number;
   type: "text" | "child" | "handler" | "attribute" | "attributes" | "ref";
-  path: string[];
-  event?: string;
+  isOnlyChild?: boolean;
   name?: string;
   tag?: string;
-  isOnlyChild?: boolean;
-  parentPath?: string[];
+  event?: string;
 }
 
-interface BuilderContext {
-  path: string[];
-  info: BlockInfo[];
+interface IntermediateTree {
+  parent: IntermediateTree | null;
+  firstChild: IntermediateTree | null;
+  nextSibling: IntermediateTree | null;
+  el: Node;
+  info: DynamicInfo[];
+  forceRef?: boolean;
+  refIdx?: number;
+  isActive: boolean;
 }
 
-function processDescription(node: ChildNode, ctx: BuilderContext, parentPath: string[] = []): Node {
+function buildTree(
+  node: Node,
+  parent: IntermediateTree | null = null,
+  domParentTree: IntermediateTree | null = null
+): IntermediateTree {
   switch (node.nodeType) {
     case 1: {
       // HTMLElement
+      let isActive = false;
       const tagName = (node as Element).tagName;
+      let el: Node | undefined = undefined;
+      const info: DynamicInfo[] = [];
       if (tagName.startsWith("block-text-")) {
         const index = parseInt(tagName.slice(11), 10);
-        ctx.info.push({ index, path: ctx.path.slice(), type: "text" });
-        return document.createTextNode("");
+        info.push({ type: "text", idx: index });
+        el = document.createTextNode("");
+        isActive = true;
       }
       if (tagName.startsWith("block-child-")) {
+        domParentTree!.forceRef = true;
         const index = parseInt(tagName.slice(12), 10);
-        ctx.info.push({ index, type: "child", path: ctx.path.slice(), parentPath });
-        return document.createTextNode("");
+        info.push({ type: "child", idx: index });
+        el = document.createTextNode("");
+        isActive = true;
       }
-      const result = document.createElement((node as Element).tagName);
-      const attrs = (node as Element).attributes;
-      for (let i = 0; i < attrs.length; i++) {
-        const attrName = attrs[i].name;
-        const attrValue = attrs[i].value;
-        if (attrName.startsWith("block-handler-")) {
-          const index = parseInt(attrName.slice(14), 10);
-          ctx.info.push({
-            index,
-            path: ctx.path.slice(),
-            type: "handler",
-            event: attrValue,
-          });
-        } else if (attrName.startsWith("block-attribute-")) {
-          const index = parseInt(attrName.slice(16), 10);
-          ctx.info.push({
-            index,
-            path: ctx.path.slice(),
-            type: "attribute",
-            name: attrValue,
-            tag: tagName,
-          });
-        } else if (attrName === "block-attributes") {
-          ctx.info.push({
-            index: parseInt(attrValue, 10),
-            path: ctx.path.slice(),
-            type: "attributes",
-          });
-        } else if (attrName === "block-ref") {
-          ctx.info.push({
-            index: parseInt(attrValue, 10),
-            path: ctx.path.slice(),
-            type: "ref",
-          });
-        } else {
-          result.setAttribute(attrs[i].name, attrValue);
+      if (!el) {
+        el = document.createElement(tagName);
+      }
+      if (el instanceof HTMLElement) {
+        const attrs = (node as Element).attributes;
+        for (let i = 0; i < attrs.length; i++) {
+          const attrName = attrs[i].name;
+          const attrValue = attrs[i].value;
+          if (attrName.startsWith("block-handler-")) {
+            isActive = true;
+            const idx = parseInt(attrName.slice(14), 10);
+            info.push({
+              type: "handler",
+              idx,
+              event: attrValue,
+            });
+          } else if (attrName.startsWith("block-attribute-")) {
+            isActive = true;
+            const idx = parseInt(attrName.slice(16), 10);
+            info.push({
+              type: "attribute",
+              idx,
+              name: attrValue,
+              tag: tagName,
+            });
+          } else if (attrName === "block-attributes") {
+            isActive = true;
+            info.push({
+              type: "attributes",
+              idx: parseInt(attrValue, 10),
+            });
+          } else if (attrName === "block-ref") {
+            isActive = true;
+            info.push({
+              type: "ref",
+              idx: parseInt(attrValue, 10),
+            });
+          } else {
+            el.setAttribute(attrs[i].name, attrValue);
+          }
         }
       }
-      let children = (node as Element).childNodes;
-      if (children.length === 1) {
-        const childNode = children[0];
-        if (childNode.nodeType === 1 && (childNode as Element).tagName.startsWith("block-child-")) {
+
+      const result: IntermediateTree = {
+        parent,
+        firstChild: null,
+        nextSibling: null,
+        el,
+        info,
+        isActive,
+      };
+
+      if (node.firstChild) {
+        const childNode = node.childNodes[0];
+        if (
+          node.childNodes.length === 1 &&
+          childNode.nodeType === 1 &&
+          (childNode as Element).tagName.startsWith("block-child-")
+        ) {
           const tagName = (childNode as Element).tagName;
-          const index = parseInt(tagName.slice(10), 10);
-          ctx.info.push({ index, type: "child", path: ctx.path.slice(), isOnlyChild: true });
-          return result;
+          const index = parseInt(tagName.slice(12), 10);
+          info.push({ idx: index, type: "child", isOnlyChild: true });
+          isActive = true;
+          result.isActive = true;
+        } else {
+          result.firstChild = buildTree(node.firstChild, result, result);
+          el.appendChild(result.firstChild.el);
+          let curNode: Node | null = node.firstChild;
+          let curTree: IntermediateTree | null = result.firstChild;
+          while ((curNode = curNode.nextSibling)) {
+            curTree.nextSibling = buildTree(curNode, curTree, result);
+            el.appendChild(curTree.nextSibling.el);
+            curTree = curTree.nextSibling;
+          }
         }
       }
-      const initialPath = ctx.path.slice();
-      let currentPath = initialPath.slice();
-      for (let i = 0; i < children.length; i++) {
-        currentPath = currentPath.concat(i === 0 ? "firstChild" : "nextSibling");
-        ctx.path = currentPath;
-        result.appendChild(processDescription(children[i], ctx, initialPath));
+      if (isActive) {
+        let cur: IntermediateTree | null = result;
+        while ((cur = cur.parent) && !cur.isActive) {
+          cur.isActive = true;
+        }
       }
-      ctx.path = initialPath;
       return result;
     }
-    case 3: {
-      // text node
-      return document.createTextNode(node.textContent!);
-    }
+    case 3: // text node
     case 8: {
       // comment node
-      return document.createComment(node.textContent!);
+      const el =
+        node.nodeType === 3
+          ? document.createTextNode(node.textContent!)
+          : document.createComment(node.textContent!);
+      return {
+        parent: parent,
+        firstChild: null,
+        nextSibling: null,
+        el,
+        info: [],
+        isActive: false,
+      };
     }
   }
   throw new Error("boom");
 }
 
+function parentTree(tree: IntermediateTree): IntermediateTree | null {
+  // console.warn(tree)
+  let parent = tree.parent;
+  while (parent && parent.nextSibling === tree) {
+    tree = parent;
+    parent = parent.parent;
+  }
+  return parent;
+}
+
 // -----------------------------------------------------------------------------
-// Compiler
+// building a block context
 // -----------------------------------------------------------------------------
-interface Collector {
-  // refIdx: number;
+
+interface RefCollector {
+  idx: number;
   prevIdx: number;
   getVal: Function;
 }
@@ -192,144 +275,177 @@ interface Location {
   updateData: Function;
 }
 
-interface ChildInsertionPoint {
+interface Child {
   parentRefIdx: number;
   afterRefIdx?: number;
   singleNode?: boolean;
 }
 
-function setText(this: Text, value: any) {
-  characterDataSetData.call(this, toText(value));
+interface BlockCtx {
+  // info: DynamicInfo[];
+  refSize: number;
+  collectors: RefCollector[];
+  locations: Location[];
+  children: Child[];
+  cbRefs: number[];
 }
 
-function compileBlock(info: BlockInfo[], template: HTMLElement): BlockType {
-  let collectors: Collector[] = [];
-  let locations: Location[] = [];
-  let children: ChildInsertionPoint[] = [];
-  let isDynamic = Boolean(info.length);
-  let refs: number[] = [];
-
-  if (info.length) {
-    let current = 0;
-    let refMap: { [k: string]: number } = {};
-
-    for (let line of info) {
-      let currentIdx = 0;
-      for (let i = 0; i < line.path.length; i++) {
-        const key = line.path.slice(0, i + 1).join();
-        currentIdx = key in refMap ? refMap[key] : (refMap[key] = current++);
-      }
-      line.refIndex = currentIdx;
+function buildContext(tree: IntermediateTree, ctx?: BlockCtx): BlockCtx {
+  if (!ctx) {
+    ctx = {
+      refSize: 0, // actually number of refs - 1 (so, basically, max refindex)
+      collectors: [],
+      locations: [],
+      children: [],
+      cbRefs: [],
+    };
+  }
+  if (tree.isActive) {
+    const isRef = tree.forceRef || tree.info.length > 0;
+    const firstChild = tree.firstChild && tree.firstChild.isActive;
+    const nextSibling = tree.nextSibling && tree.nextSibling.isActive;
+    const initialIdx = ctx.refSize;
+    const shouldAssignRef = isRef || (firstChild && nextSibling);
+    if (shouldAssignRef) {
+      ctx.refSize++;
     }
-    for (let path in refMap) {
-      if (path === "el") {
-        continue;
+    // console.log(tree.el, curIdx, ctx.refSize)
+
+
+    //node
+    if (isRef) {
+      for (let info of tree.info) {
+        info.refIdx = initialIdx;
       }
-      const pathL = path.split(",");
-      const prevIdx = refMap[pathL.slice(0, -1).join()];
-      switch (pathL[pathL.length - 1]) {
-        case "firstChild":
-          collectors.push({
-            prevIdx,
-            getVal: nodeGetFirstChild,
-          });
-          break;
-        case "nextSibling":
-          collectors.push({
-            prevIdx,
-            getVal: nodeGetNextSibling,
-          });
-          break;
-      }
+      tree.refIdx = initialIdx;
+      addInfoToContext(tree, ctx);
+      // if (firstChild || nextSibling) {
+        // if ((!tree.parent) || !(tree.parent.firstChild === tree && tree.parent.nextSibling)) {
+        // ctx.refSize++;
+      // }
+      // curIdx = ctx.refSize + 1;
     }
 
-    // building locations and child insertion points
-    for (let line of info) {
-      switch (line.type) {
-        case "text": {
-          const refIdx = line.refIndex!;
-          locations.push({
-            idx: line.index,
-            refIdx,
-            setData: setText,
-            updateData: setText,
-          });
-          break;
-        }
-        case "attribute": {
-          const refIdx = line.refIndex!;
-          let updater: any;
-          let setter: any;
-          if (isProp(line.tag!, line.name!)) {
-            const setProp = makePropSetter(line.name!);
-            setter = setProp;
-            updater = setProp;
-          } else if (line.name === "class") {
-            setter = setClass;
-            updater = updateClass;
-          } else {
-            setter = createAttrUpdater(line.name!);
-            updater = setter;
-          }
-          locations.push({
-            idx: line.index,
-            refIdx,
-            setData: setter,
-            updateData: updater,
-          });
-          break;
-        }
-        case "attributes": {
-          const refIdx = line.refIndex!;
-          locations.push({
-            idx: line.index,
-            refIdx,
-            setData: attrsSetter,
-            updateData: attrsUpdater,
-          });
-          break;
-        }
-        case "handler": {
-          const refIdx = line.refIndex!;
-          const setupHandler = createEventHandler(line.event!);
-          locations.push({
-            idx: line.index,
-            refIdx,
-            setData: setupHandler,
-            updateData: setupHandler,
-          });
-          break;
-        }
-        case "child":
-          if (line.isOnlyChild) {
-            children.push({
-              parentRefIdx: line.refIndex!, // current ref is parentEl
-              singleNode: true,
-            });
-          } else {
-            const prevIdx = refMap[line.parentPath!.join()];
-            children.push({
-              parentRefIdx: prevIdx,
-              afterRefIdx: line.refIndex!, // current ref is textnode anchor
-            });
-          }
-          break;
-        case "ref": {
-          const refIdx = line.refIndex!;
-          refs.push(line.index);
-          locations.push({
-            idx: line.index,
-            refIdx,
-            setData: setRef,
-            updateData: NO_OP,
-          });
-        }
-      }
+    // left
+    if (firstChild) {
+      // let prevIdx = curIdx;
+      let idx = ctx.refSize;
+      // if (nextSibling) {
+      //   idx = ctx.refSize + 1;
+      //   ctx.refSize++;
+      // }
+      ctx.collectors.push({ idx, prevIdx: initialIdx, getVal: nodeGetFirstChild });
+      buildContext(tree.firstChild!, ctx);
+      // curIdx = ctx.refSize;
+    }
+
+    // right
+    if (nextSibling) {
+      let idx = ctx.refSize;
+      // if (firstChild) {
+      //   idx = ctx.refSize + 1;
+      //   ctx.refSize++;
+      // }
+      ctx.collectors.push({ idx, prevIdx: initialIdx, getVal: nodeGetNextSibling });
+      buildContext(tree.nextSibling!,  ctx);
+      // curIdx = ctx.refSize ;
     }
   }
 
-  let B = createBlockClass(template, collectors, locations, children, isDynamic);
-  if (refs.length) {
+  return ctx;
+}
+
+function addInfoToContext(tree: IntermediateTree, ctx: BlockCtx) {
+  for (let info of tree.info) {
+    switch (info.type) {
+      case "text":
+        ctx.locations.push({
+          idx: info.idx,
+          refIdx: info.refIdx!,
+          setData: setText,
+          updateData: setText,
+        });
+        break;
+      case "child":
+        // todo: rename singleNode to isOnlyChild
+        if (info.isOnlyChild) {
+          // tree is the parentnode here
+          ctx.children.push({
+            parentRefIdx: info.refIdx!,
+            singleNode: true,
+          });
+        } else {
+          // tree is the anchor text node
+          ctx.children.push({
+            parentRefIdx: parentTree(tree)!.refIdx!,
+            afterRefIdx: info.refIdx!,
+          });
+        }
+        break;
+      case "attribute": {
+        const refIdx = info.refIdx!;
+        let updater: any;
+        let setter: any;
+        if (isProp(info.tag!, info.name!)) {
+          const setProp = makePropSetter(info.name!);
+          setter = setProp;
+          updater = setProp;
+        } else if (info.name === "class") {
+          setter = setClass;
+          updater = updateClass;
+        } else {
+          setter = createAttrUpdater(info.name!);
+          updater = setter;
+        }
+        ctx.locations.push({
+          idx: info.idx,
+          refIdx,
+          setData: setter,
+          updateData: updater,
+        });
+        break;
+      }
+      case "attributes":
+        ctx.locations.push({
+          idx: info.idx,
+          refIdx: info.refIdx!,
+          setData: attrsSetter,
+          updateData: attrsUpdater,
+        });
+        break;
+      case "handler": {
+        const refIdx = info.refIdx!;
+        const setupHandler = createEventHandler(info.event!);
+        ctx.locations.push({
+          idx: info.idx,
+          refIdx,
+          setData: setupHandler,
+          updateData: setupHandler,
+        });
+        break;
+      }
+      case "ref": {
+        const refIdx = info.refIdx!;
+        ctx.cbRefs.push(info.idx);
+        ctx.locations.push({
+          idx: info.idx,
+          refIdx,
+          setData: setRef,
+          updateData: NO_OP,
+        });
+      }
+    }
+  }
+}
+// -----------------------------------------------------------------------------
+// building the concrete block class
+// -----------------------------------------------------------------------------
+
+function buildBlock(template: HTMLElement, ctx: BlockCtx): BlockType {
+  let B = createBlockClass(template, ctx);
+
+  if (ctx.cbRefs.length) {
+    const refs = ctx.cbRefs;
     B = class extends B {
       remove() {
         super.remove();
@@ -340,7 +456,8 @@ function compileBlock(info: BlockInfo[], template: HTMLElement): BlockType {
       }
     };
   }
-  if (children.length) {
+
+  if (ctx.children.length) {
     B = class extends B {
       beforeRemove() {
         // todo: share that code with multi?
@@ -355,30 +472,20 @@ function compileBlock(info: BlockInfo[], template: HTMLElement): BlockType {
     };
     return (data?: any[], children?: (VNode | undefined)[]) => new B(data, children);
   }
+
   return (data?: any[]) => new B(data);
 }
 
-function setRef(this: HTMLElement, fn: any) {
-  fn(this);
-}
-
-// -----------------------------------------------------------------------------
-// block implementation
-// -----------------------------------------------------------------------------
-
 type Constructor<T> = new (...args: any[]) => T;
+type BlockClass = Constructor<VNode<any>>;
 
-function createBlockClass(
-  template: HTMLElement,
-  collectors: Collector[],
-  locations: Location[],
-  childrenLocs: ChildInsertionPoint[],
-  isDynamic: boolean
-): Constructor<VNode<any>> {
-  let colLen = collectors.length;
-  let locLen = locations.length;
-  let childN = childrenLocs.length;
-  const refN = colLen + 1;
+function createBlockClass(template: HTMLElement, ctx: BlockCtx): BlockClass {
+  const { refSize: refN, collectors, locations, children } = ctx;
+  const colN = collectors.length;
+  const locN = locations.length;
+  const childN = children.length;
+  const childrenLocs = children;
+  const isDynamic = refN > 0;
 
   // these values are defined here to make them faster to lookup in the class
   // block scope
@@ -392,7 +499,7 @@ function createBlockClass(
     data: any[] | undefined;
     children: (VNode | undefined)[] | undefined;
     parentEl?: HTMLElement | undefined;
-    singleNode?: boolean | undefined;
+    //     singleNode?: boolean | undefined;
 
     constructor(data?: any[], children?: VNode[]) {
       this.data = data;
@@ -416,29 +523,27 @@ function createBlockClass(
 
     mount(parent: HTMLElement, afterNode: Node | null) {
       const el = nodeCloneNode.call(template, true);
-      // console.warn(colLen)
       nodeInsertBefore.call(parent, el, afterNode);
       if (isDynamic) {
         // collecting references
         const refs: Node[] = new Array(refN);
         this.refs = refs;
         refs[0] = el;
-        for (let i = 0; i < colLen; i++) {
+        for (let i = 0; i < colN; i++) {
           const w = collectors[i];
-          refs[i + 1] = w.getVal.call(refs[w.prevIdx]);
+          refs[w.idx] = w.getVal.call(refs[w.prevIdx]);
         }
 
         // applying data to all update points
-        if (locLen) {
+        if (locN) {
           const data = this.data!;
-          for (let i = 0; i < locLen; i++) {
+          for (let i = 0; i < locN; i++) {
             const loc = locations[i];
             loc.setData.call(refs[loc.refIdx], data[loc.idx]);
           }
         }
 
         // preparing all children
-        // console.warn(childN)
         if (childN) {
           const children = this.children;
           if (children) {
@@ -464,10 +569,10 @@ function createBlockClass(
       }
       const refs = this.refs!;
       // update texts/attributes/
-      if (locLen) {
+      if (locN) {
         const data1 = this.data!;
         const data2 = other.data!;
-        for (let i = 0; i < locLen; i++) {
+        for (let i = 0; i < locN; i++) {
           const loc = locations[i];
           const idx = loc.idx;
           const val1 = data1[idx];
@@ -515,4 +620,12 @@ function createBlockClass(
       return div.innerHTML;
     }
   };
+}
+
+function setText(this: Text, value: any) {
+  characterDataSetData.call(this, toText(value));
+}
+
+function setRef(this: HTMLElement, fn: any) {
+  fn(this);
 }

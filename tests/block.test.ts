@@ -187,7 +187,7 @@ describe("misc", () => {
     expect(fixture.textContent).toBe("<p>a</p>");
   });
 
-  //     test("reusing a block skips patching process", async () => {
+  //     test.skip("reusing a block skips patching process", async () => {
   //       const block = createBlock('<div><block-text-0/></div>');
   //       const foo = block(["foo"]);
   //       const bar = block(["bar"]);

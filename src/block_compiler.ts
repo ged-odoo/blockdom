@@ -459,6 +459,12 @@ function buildBlock(template: HTMLElement, ctx: BlockCtx): BlockType {
 
   if (ctx.children.length) {
     B = class extends B {
+      children: (VNode | undefined)[] | undefined;
+      constructor(data?: any[], children?: VNode[]) {
+          super(data);
+          this.children = children;
+        }
+
       beforeRemove() {
         // todo: share that code with multi?
         const children = (this as any).children!!;
@@ -497,13 +503,12 @@ function createBlockClass(template: HTMLElement, ctx: BlockCtx): BlockClass {
     el: HTMLElement | undefined;
     refs: Node[] | undefined;
     data: any[] | undefined;
-    children: (VNode | undefined)[] | undefined;
     parentEl?: HTMLElement | undefined;
+    children: (VNode | undefined)[] | undefined;
     //     singleNode?: boolean | undefined;
 
-    constructor(data?: any[], children?: VNode[]) {
+    constructor(data?: any[]) {
       this.data = data;
-      this.children = children;
     }
 
     beforeRemove() {}

@@ -238,8 +238,8 @@ text node.
 const block1 = createBlock(`<div>1</div>`);
 const block2 = createBlock(`<div>2</div>`);
 
-const tree = multi([block1, block2]); // represents `<div>1</div><div>2</div>`
-const otherTree = multi([block1, undefined]); // represents `<div>1</div>`
+const tree = multi([block1(), block2()]); // represents `<div>1</div><div>2</div>`
+const otherTree = multi([block1(), undefined]); // represents `<div>1</div>`
 ```
 
 Each children can be a mix of any type.

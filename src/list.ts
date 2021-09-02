@@ -16,7 +16,7 @@ class VList {
   children: VNode[];
   anchor: Node | undefined;
   parentEl?: HTMLElement | undefined;
-  singleNode?: boolean | undefined;
+  isOnlyChild?: boolean | undefined;
 
   constructor(children: VNode[]) {
     this.children = children;
@@ -71,7 +71,7 @@ class VList {
     } = proto;
 
     const _anchor = this.anchor!;
-    const isOnlyChild = this.singleNode;
+    const isOnlyChild = this.isOnlyChild;
     const parent = this.parentEl!;
 
     // fast path: no new child => only remove
@@ -202,7 +202,7 @@ class VList {
 
   remove() {
     const { parentEl, anchor } = this;
-    if (this.singleNode) {
+    if (this.isOnlyChild) {
       nodeSetTextContent.call(parentEl, "");
     } else {
       const children = this.children;

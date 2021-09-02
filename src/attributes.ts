@@ -1,10 +1,11 @@
+import type { Setter, Updater } from "./block_compiler";
 /**
  * We regroup here all code related to updating attributes in a very loose sense:
  * attributes, properties and classs are all managed by the functions in this
  * file.
  */
 
-export function createAttrUpdater(attr: string) {
+export function createAttrUpdater(attr: string): Setter<HTMLElement> {
   return function (this: HTMLElement, value: any) {
     if (value !== false) {
       if (value === true) {
@@ -109,7 +110,7 @@ export function updateClass(this: HTMLElement, val: any, oldVal: any) {
   }
 }
 
-export function makePropSetter(name: string) {
+export function makePropSetter(name: string): Setter<HTMLElement> {
   return function setProp(this: HTMLElement, value: any) {
     (this as any)[name] = value;
   };

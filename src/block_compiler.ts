@@ -115,7 +115,7 @@ interface IntermediateTree {
   info: DynamicInfo[];
   forceRef?: boolean;
   refIdx?: number;
-  isActive: boolean;
+  refN: number;
 }
 
 function buildTree(
@@ -192,7 +192,7 @@ function buildTree(
         nextSibling: null,
         el,
         info,
-        isActive,
+        refN: isActive ? 1 : 0,
       };
 
       if (node.firstChild) {
@@ -206,7 +206,7 @@ function buildTree(
           const index = parseInt(tagName.slice(12), 10);
           info.push({ idx: index, type: "child", isOnlyChild: true });
           isActive = true;
-          tree.isActive = true;
+          tree.refN = 1;
         } else {
           tree.firstChild = buildTree(node.firstChild, tree, tree);
           el.appendChild(tree.firstChild.el);
@@ -221,8 +221,8 @@ function buildTree(
       }
       if (isActive) {
         let cur: IntermediateTree | null = tree;
-        while ((cur = cur.parent) && !cur.isActive) {
-          cur.isActive = true;
+        while ((cur = cur.parent)) {
+          cur.refN++;
         }
       }
       return tree;
@@ -240,7 +240,7 @@ function buildTree(
         nextSibling: null,
         el,
         info: [],
-        isActive: false,
+        refN: 0,
       };
     }
   }
@@ -283,48 +283,51 @@ interface Child {
 }
 
 interface BlockCtx {
-  refSize: number;
+  refN: number;
   collectors: RefCollector[];
   locations: Location[];
   children: Child[];
   cbRefs: number[];
 }
 
-function buildContext(tree: IntermediateTree, ctx?: BlockCtx): BlockCtx {
+function buildContext(
+  tree: IntermediateTree,
+  ctx?: BlockCtx,
+  fromIdx?: number,
+  toIdx?: number
+): BlockCtx {
   if (!ctx) {
-    ctx = { refSize: 0, collectors: [], locations: [], children: [], cbRefs: [] };
+    ctx = { collectors: [], locations: [], children: [], cbRefs: [], refN: tree.refN };
+    fromIdx = 0;
+    toIdx = tree.refN - 1;
   }
-  if (tree.isActive) {
-    const initialIdx = ctx.refSize;
+  if (tree.refN) {
+    const initialIdx = fromIdx!;
     const isRef = tree.forceRef || tree.info.length > 0;
-    const firstChild = tree.firstChild && tree.firstChild.isActive;
-    const nextSibling = tree.nextSibling && tree.nextSibling.isActive;
-    const shouldAssignRef = isRef || (firstChild && nextSibling);
-    if (shouldAssignRef) {
-      ctx.refSize++;
-    }
+    const firstChild = tree.firstChild ? tree.firstChild.refN : 0;
+    const nextSibling = tree.nextSibling ? tree.nextSibling.refN : 0;
 
     //node
     if (isRef) {
       for (let info of tree.info) {
-        info.refIdx = initialIdx;
+        info.refIdx = initialIdx!;
       }
-      tree.refIdx = initialIdx;
+      tree.refIdx = initialIdx!;
       updateCtx(ctx, tree);
-    }
-
-    // left
-    if (firstChild) {
-      let idx = ctx.refSize;
-      ctx.collectors.push({ idx, prevIdx: initialIdx, getVal: nodeGetFirstChild });
-      buildContext(tree.firstChild!, ctx);
+      fromIdx!++;
     }
 
     // right
     if (nextSibling) {
-      let idx = ctx.refSize;
+      const idx = fromIdx! + firstChild;
       ctx.collectors.push({ idx, prevIdx: initialIdx, getVal: nodeGetNextSibling });
-      buildContext(tree.nextSibling!, ctx);
+      buildContext(tree.nextSibling!, ctx, idx, toIdx);
+    }
+
+    // left
+    if (firstChild) {
+      ctx.collectors.push({ idx: fromIdx!, prevIdx: initialIdx, getVal: nodeGetFirstChild });
+      buildContext(tree.firstChild!, ctx, fromIdx!, toIdx! - nextSibling);
     }
   }
 
@@ -448,7 +451,7 @@ type Constructor<T> = new (...args: any[]) => T;
 type BlockClass = Constructor<VNode<any>>;
 
 function createBlockClass(template: HTMLElement, ctx: BlockCtx): BlockClass {
-  const { refSize: refN, collectors, locations, children } = ctx;
+  const { refN, collectors, locations, children } = ctx;
   const colN = collectors.length;
   const locN = locations.length;
   const childN = children.length;

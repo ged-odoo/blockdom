@@ -181,6 +181,14 @@ describe("remove elem blocks", () => {
 });
 
 describe("misc", () => {
+  test("constructed block as correct number of refs", () => {
+    const block = createBlock("<p><p><block-text-0/></p><block-text-1/></p>");
+    const tree = block(["a", "b"]);
+    mount(tree, fixture);
+    expect(fixture.innerHTML).toBe("<p><p>a</p>b</p>");
+    expect((tree as any).refs.length).toBe(2);
+  });
+
   test("block vnode can be used as text", () => {
     const block = createBlock("<p>a</p>");
     mount(text(block() as any), fixture);

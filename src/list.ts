@@ -208,8 +208,9 @@ class VList {
       const children = this.children;
       const l = children.length;
       if (l) {
+        const remove = children[0].remove;
         for (let i = 0; i < l; i++) {
-          children[i].remove();
+          remove.call(children[i]);
         }
       }
       nodeRemoveChild.call(parentEl, anchor!);

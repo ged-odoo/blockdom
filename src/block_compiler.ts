@@ -441,7 +441,7 @@ function buildBlock(template: HTMLElement, ctx: BlockCtx): BlockType {
       }
     };
     B.prototype.beforeRemove = VMulti.prototype.beforeRemove;
-    return (data?: any[], children?: (VNode | undefined)[]) => new B(data, children);
+    return (data?: any[], children: (VNode | undefined)[] = []) => new B(data, children);
   }
 
   return (data?: any[]) => new B(data);
@@ -469,7 +469,7 @@ function createBlockClass(template: HTMLElement, ctx: BlockCtx): BlockClass {
     refs: Node[] | undefined;
     data: any[] | undefined;
     parentEl?: HTMLElement | undefined;
-    children: (VNode | undefined)[] | undefined;
+    children?: (VNode | undefined)[];
 
     constructor(data?: any[]) {
       this.data = data;
@@ -515,15 +515,13 @@ function createBlockClass(template: HTMLElement, ctx: BlockCtx): BlockClass {
         // preparing all children
         if (childN) {
           const children = this.children;
-          if (children) {
-            for (let i = 0; i < childN; i++) {
-              const child = children![i];
-              if (child) {
-                const loc = childrenLocs[i];
-                const afterNode = loc.afterRefIdx ? refs[loc.afterRefIdx] : null;
-                child.isOnlyChild = loc.isOnlyChild;
-                child.mount(refs[loc.parentRefIdx] as any, afterNode);
-              }
+          for (let i = 0; i < childN; i++) {
+            const child = children![i];
+            if (child) {
+              const loc = childrenLocs[i];
+              const afterNode = loc.afterRefIdx ? refs[loc.afterRefIdx] : null;
+              child.isOnlyChild = loc.isOnlyChild;
+              child.mount(refs[loc.parentRefIdx] as any, afterNode);
             }
           }
         }
@@ -549,16 +547,13 @@ function createBlockClass(template: HTMLElement, ctx: BlockCtx): BlockClass {
             loc.updateData.call(refs[loc.refIdx], val2, val1);
           }
         }
-        this.data = other.data;
+        this.data = data2;
       }
 
       // update children
       if (childN) {
         let children1 = this.children;
-        if (!children1) {
-          this.children = children1 = [];
-        }
-        const children2 = other.children || [];
+        const children2 = other.children;
         for (let i = 0; i < childN; i++) {
           const child1 = children1![i];
           const child2 = children2![i];
@@ -570,13 +565,13 @@ function createBlockClass(template: HTMLElement, ctx: BlockCtx): BlockClass {
                 child1.beforeRemove();
               }
               child1.remove();
-              children1[i] = undefined;
+              children1![i] = undefined;
             }
           } else if (child2) {
             const loc = childrenLocs[i];
             const afterNode = loc.afterRefIdx ? refs[loc.afterRefIdx] : null;
             child2.mount(refs[loc.parentRefIdx] as any, afterNode);
-            children1[i] = child2;
+            children1![i] = child2;
           }
         }
       }

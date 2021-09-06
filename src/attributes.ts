@@ -1,11 +1,12 @@
 import type { Setter } from "./block_compiler";
 
-const elementProto = Element.prototype;
-const elementSetAttribute = elementProto.setAttribute;
-const elementRemoveAttribute = elementProto.removeAttribute;
+const { setAttribute, removeAttribute } = Element.prototype;
 const tokenList = DOMTokenList.prototype;
 const tokenListAdd = tokenList.add;
 const tokenListRemove = tokenList.remove;
+const isArray = Array.isArray;
+const { split, trim } = String.prototype;
+const wordRegexp = /\s+/;
 
 /**
  * We regroup here all code related to updating attributes in a very loose sense:
@@ -16,44 +17,44 @@ const tokenListRemove = tokenList.remove;
 export function createAttrUpdater(attr: string): Setter<HTMLElement> {
   return function (this: HTMLElement, value: any) {
     if (value !== false) {
-      elementSetAttribute.call(this, attr, value === true ? "" : value);
+      setAttribute.call(this, attr, value === true ? "" : value);
     }
   };
 }
 
 export function attrsSetter(this: HTMLElement, attrs: any) {
-  if (Array.isArray(attrs)) {
-    elementSetAttribute.call(this, attrs[0], attrs[1]);
+  if (isArray(attrs)) {
+    setAttribute.call(this, attrs[0], attrs[1]);
   } else {
     for (let k in attrs) {
-      elementSetAttribute.call(this, k, attrs[k]);
+      setAttribute.call(this, k, attrs[k]);
     }
   }
 }
 
 export function attrsUpdater(this: HTMLElement, attrs: any, oldAttrs: any) {
-  if (Array.isArray(attrs)) {
+  if (isArray(attrs)) {
     const name = attrs[0];
     const val = attrs[1];
     if (name === oldAttrs[0]) {
       if (val === oldAttrs[1]) {
         return;
       }
-      elementSetAttribute.call(this, name, val);
+      setAttribute.call(this, name, val);
     } else {
-      elementRemoveAttribute.call(this, oldAttrs[0]);
-      elementSetAttribute.call(this, name, val);
+      removeAttribute.call(this, oldAttrs[0]);
+      setAttribute.call(this, name, val);
     }
   } else {
     for (let k in oldAttrs) {
       if (!(k in attrs)) {
-        elementRemoveAttribute.call(this, k);
+        removeAttribute.call(this, k);
       }
     }
     for (let k in attrs) {
       const val = attrs[k];
       if (val !== oldAttrs[k]) {
-        elementSetAttribute.call(this, k, val);
+        setAttribute.call(this, k, val);
       }
     }
   }
@@ -61,14 +62,15 @@ export function attrsUpdater(this: HTMLElement, attrs: any, oldAttrs: any) {
 
 function toClassObj(expr: string | number | { [c: string]: any }) {
   const result: { [c: string]: any } = {};
+  const type = typeof expr;
 
-  if (typeof expr === "object") {
+  if (type === "object") {
     // this is already an object but we may need to split keys:
     // {'a': true, 'b c': true} should become {a: true, b: true, c: true}
-    for (let key in expr) {
-      const value = expr[key];
+    for (let key in expr as any) {
+      const value = (expr as any)[key];
       if (value) {
-        const words = key.split(/\s+/);
+        const words = split.call(key, wordRegexp);
         for (let word of words) {
           result[word] = value;
         }
@@ -76,16 +78,16 @@ function toClassObj(expr: string | number | { [c: string]: any }) {
     }
     return result;
   }
-  if (typeof expr !== "string") {
+  if (type !== "string") {
     expr = String(expr);
   }
   // we transform here a list of classes into an object:
   //  'hey you' becomes {hey: true, you: true}
-  const str = expr.trim();
+  const str = trim.call(expr);
   if (!str) {
     return {};
   }
-  let words = str.split(/\s+/);
+  let words = split.call(str, wordRegexp);
   for (let i = 0, l = words.length; i < l; i++) {
     result[words[i]] = true;
   }
@@ -93,7 +95,7 @@ function toClassObj(expr: string | number | { [c: string]: any }) {
 }
 
 export function setClass(this: HTMLElement, val: any) {
-  val = val === undefined ? {} : toClassObj(val);
+  val = val ? toClassObj(val) : {};
   // add classes
   const cl = this.classList;
   for (let c in val) {
@@ -102,8 +104,8 @@ export function setClass(this: HTMLElement, val: any) {
 }
 
 export function updateClass(this: HTMLElement, val: any, oldVal: any) {
-  oldVal = oldVal === undefined ? {} : toClassObj(oldVal);
-  val = val === undefined ? {} : toClassObj(val);
+  oldVal = oldVal ? toClassObj(oldVal) : {};
+  val = val ? toClassObj(val) : {};
   const cl = this.classList;
   // remove classes
   for (let c in oldVal) {

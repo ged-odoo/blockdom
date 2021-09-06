@@ -1,4 +1,12 @@
-import type { Setter, Updater } from "./block_compiler";
+import type { Setter } from "./block_compiler";
+
+const elementProto = Element.prototype;
+const elementSetAttribute = elementProto.setAttribute;
+const elementRemoveAttribute = elementProto.removeAttribute;
+const tokenList = DOMTokenList.prototype;
+const tokenListAdd = tokenList.add;
+const tokenListRemove = tokenList.remove;
+
 /**
  * We regroup here all code related to updating attributes in a very loose sense:
  * attributes, properties and classs are all managed by the functions in this
@@ -8,52 +16,51 @@ import type { Setter, Updater } from "./block_compiler";
 export function createAttrUpdater(attr: string): Setter<HTMLElement> {
   return function (this: HTMLElement, value: any) {
     if (value !== false) {
-      if (value === true) {
-        this.setAttribute(attr, "");
-      } else {
-        this.setAttribute(attr, value);
-      }
+      elementSetAttribute.call(this, attr, value === true ? "" : value);
     }
   };
 }
 
 export function attrsSetter(this: HTMLElement, attrs: any) {
   if (Array.isArray(attrs)) {
-    this.setAttribute(attrs[0], attrs[1]);
+    elementSetAttribute.call(this, attrs[0], attrs[1]);
   } else {
     for (let k in attrs) {
-      this.setAttribute(k, attrs[k]);
+      elementSetAttribute.call(this, k, attrs[k]);
     }
   }
 }
 
 export function attrsUpdater(this: HTMLElement, attrs: any, oldAttrs: any) {
   if (Array.isArray(attrs)) {
-    if (attrs[0] === oldAttrs[0]) {
-      if (attrs[1] === oldAttrs[1]) {
+    const name = attrs[0];
+    const val = attrs[1];
+    if (name === oldAttrs[0]) {
+      if (val === oldAttrs[1]) {
         return;
       }
-      this.setAttribute(attrs[0], attrs[1]);
+      elementSetAttribute.call(this, name, val);
     } else {
-      this.removeAttribute(oldAttrs[0]);
-      this.setAttribute(attrs[0], attrs[1]);
+      elementRemoveAttribute.call(this, oldAttrs[0]);
+      elementSetAttribute.call(this, name, val);
     }
   } else {
     for (let k in oldAttrs) {
       if (!(k in attrs)) {
-        this.removeAttribute(k);
+        elementRemoveAttribute.call(this, k);
       }
     }
     for (let k in attrs) {
-      if (attrs[k] !== oldAttrs[k]) {
-        this.setAttribute(k, attrs[k]);
+      const val = attrs[k];
+      if (val !== oldAttrs[k]) {
+        elementSetAttribute.call(this, k, val);
       }
     }
   }
 }
 
-function toClassObj(expr: string | number | { [c: string]: any }, expr2?: any) {
-  const result: { [c: string]: any } = expr2 ? toClassObj(expr2) : {};
+function toClassObj(expr: string | number | { [c: string]: any }) {
+  const result: { [c: string]: any } = {};
 
   if (typeof expr === "object") {
     // this is already an object but we may need to split keys:
@@ -79,7 +86,7 @@ function toClassObj(expr: string | number | { [c: string]: any }, expr2?: any) {
     return {};
   }
   let words = str.split(/\s+/);
-  for (let i = 0; i < words.length; i++) {
+  for (let i = 0, l = words.length; i < l; i++) {
     result[words[i]] = true;
   }
   return result;
@@ -88,24 +95,26 @@ function toClassObj(expr: string | number | { [c: string]: any }, expr2?: any) {
 export function setClass(this: HTMLElement, val: any) {
   val = val === undefined ? {} : toClassObj(val);
   // add classes
+  const cl = this.classList;
   for (let c in val) {
-    this.classList.add(c);
+    tokenListAdd.call(cl, c);
   }
 }
 
 export function updateClass(this: HTMLElement, val: any, oldVal: any) {
   oldVal = oldVal === undefined ? {} : toClassObj(oldVal);
   val = val === undefined ? {} : toClassObj(val);
+  const cl = this.classList;
   // remove classes
   for (let c in oldVal) {
     if (!(c in val)) {
-      this.classList.remove(c);
+      tokenListRemove.call(cl, c);
     }
   }
   // add classes
   for (let c in val) {
     if (!(c in oldVal)) {
-      this.classList.add(c);
+      tokenListAdd.call(cl, c);
     }
   }
 }

@@ -270,10 +270,13 @@ export type Setter<T = any> = (this: T, value: any) => void;
 export type Updater<T = any> = (this: T, value: any, oldVal: any) => void;
 
 interface Location {
-  idx: number;
   refIdx: number;
   setData: Setter;
   updateData: Updater;
+}
+
+interface IndexedLocation extends Location {
+  idx: number;
 }
 
 interface Child {
@@ -285,7 +288,7 @@ interface Child {
 interface BlockCtx {
   refN: number;
   collectors: RefCollector[];
-  locations: Location[];
+  locations: IndexedLocation[];
   children: Child[];
   cbRefs: number[];
 }
@@ -451,8 +454,14 @@ type Constructor<T> = new (...args: any[]) => T;
 type BlockClass = Constructor<VNode<any>>;
 
 function createBlockClass(template: HTMLElement, ctx: BlockCtx): BlockClass {
-  const { refN, collectors, locations, children } = ctx;
+  const { refN, collectors, children } = ctx;
   const colN = collectors.length;
+  ctx.locations.sort((a, b) => a.idx - b.idx);
+  const locations: Location[] = ctx.locations.map((loc) => ({
+    refIdx: loc.refIdx,
+    setData: loc.setData,
+    updateData: loc.updateData,
+  }));
   const locN = locations.length;
   const childN = children.length;
   const childrenLocs = children;
@@ -508,7 +517,7 @@ function createBlockClass(template: HTMLElement, ctx: BlockCtx): BlockClass {
           const data = this.data!;
           for (let i = 0; i < locN; i++) {
             const loc = locations[i];
-            loc.setData.call(refs[loc.refIdx], data[loc.idx]);
+            loc.setData.call(refs[loc.refIdx], data[i]);
           }
         }
 
@@ -539,11 +548,10 @@ function createBlockClass(template: HTMLElement, ctx: BlockCtx): BlockClass {
         const data1 = this.data!;
         const data2 = other.data!;
         for (let i = 0; i < locN; i++) {
-          const loc = locations[i];
-          const idx = loc.idx;
-          const val1 = data1[idx];
-          const val2 = data2[idx];
+          const val1 = data1[i];
+          const val2 = data2[i];
           if (val1 !== val2) {
+            const loc = locations[i];
             loc.updateData.call(refs[loc.refIdx], val2, val1);
           }
         }

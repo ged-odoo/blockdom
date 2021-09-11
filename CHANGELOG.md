@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### 0.9.13 (2021-09-11)
+
+
+### Bug Fixes
+
+* html block should not use div.innerHTML to set content ([e508c61](https://github.com/ged-odoo/blockdom/commit/e508c61d76ae34523ed1d6e69c7c119292c955e7)), closes [#15](https://github.com/ged-odoo/blockdom/issues/15)
+
 ### 0.9.12 (2021-09-07)
 
 ### 0.9.11 (2021-09-06)

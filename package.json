@@ -1,6 +1,6 @@
 {
   "name": "blockdom",
-  "version": "0.9.12",
+  "version": "0.9.13",
   "description": "virtual dom library",
   "main": "dist/index.js",
   "browser": "dist/blockdom.iife.js",

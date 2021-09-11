@@ -195,6 +195,20 @@ describe("misc", () => {
     expect(fixture.textContent).toBe("<p>a</p>");
   });
 
+  test("block vnode can be used to represent a <tr>", () => {
+    const block = createBlock("<tr><td>tomato</td></tr>");
+    const tree = block();
+    const fixture = document.createElement("table");
+    mount(tree, fixture);
+    expect(fixture.outerHTML).toBe("<table><tr><td>tomato</td></tr></table>");
+  });
+
+  test("block vnode with <tr> can be used as text ", () => {
+    const block = createBlock("<tr><td>tomato</td></tr>");
+    mount(text(block() as any), fixture);
+    expect(fixture.textContent).toBe("<tr><td>tomato</td></tr>");
+  });
+
   //     test.skip("reusing a block skips patching process", async () => {
   //       const block = createBlock('<div><block-text-0/></div>');
   //       const foo = block(["foo"]);

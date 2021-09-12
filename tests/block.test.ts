@@ -209,6 +209,15 @@ describe("misc", () => {
     expect(fixture.textContent).toBe("<tr><td>tomato</td></tr>");
   });
 
+  test("call toString for function/objects if used as inline text in block", () => {
+    const block = createBlock("<p><block-text-0/><block-text-1/></p>");
+    const f = () => 3;
+    const g = () => 4;
+    g.toString = () => "tostring";
+    mount(block([f, g]), fixture);
+    expect(fixture.innerHTML).toBe("<p>() =&gt; 3tostring</p>");
+  });
+
   //     test.skip("reusing a block skips patching process", async () => {
   //       const block = createBlock('<div><block-text-0/></div>');
   //       const foo = block(["foo"]);

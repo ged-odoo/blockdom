@@ -1,6 +1,6 @@
 # blockdom
 
-*Probably the fastest virtual dom library in the world*
+_Probably the fastest virtual dom library in the world_
 
 `blockdom` is a very fast virtual dom library. Its main selling
 point is that it does not represent DOM element by element, but instead block by
@@ -19,7 +19,7 @@ topic.
 - [Reference documentation](doc/reference.md)
 - [Extending blockdom](doc/extending_blockdom.md)
 - [Performance Notes](doc/performance_notes.md)
-- [Tutorial: make your own framework](doc/make_your_own_framework/readme.md) ([part 1](doc/make_your_own_framework/part1.md), [part 2](doc/make_your_own_framework/part2.md), [part 3](doc/make_your_own_framework/part3.md), [part 4](doc/make_your_own_framework/part4.md), [part 5](doc/make_your_own_framework/part5.md), [part 6](doc/make_your_own_framework/part6.md), [conclusion](doc/make_your_own_framework/conclusion.md))
+- [Tutorial: make your own framework](doc/make_your_own_framework/readme.md) ([chapter 1](doc/make_your_own_framework/part1.md), [chapter 2](doc/make_your_own_framework/part2.md), [chapter 3](doc/make_your_own_framework/part3.md), [chapter 4](doc/make_your_own_framework/part4.md), [chapter 5](doc/make_your_own_framework/part5.md), [chapter 6](doc/make_your_own_framework/part6.md), [conclusion](doc/make_your_own_framework/conclusion.md))
 
 ## Examples
 

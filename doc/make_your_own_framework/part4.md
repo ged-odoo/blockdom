@@ -1,6 +1,6 @@
-# Part 4: Lifecycle
+# Chapter 4: Lifecycle
 
-Quick links: [start](readme.md) - [part 1](part1.md) - [part 2](part2.md) - [part 3](part3.md) - **part 4** - [part 5](part5.md) - [part 6](part6.md) - [conclusion](conclusion.md)
+Quick links: [start](readme.md) - [chapter 1](part1.md) - [chapter 2](part2.md) - [chapter 3](part3.md) - **chapter 4** - [chapter 5](part5.md) - [chapter 6](part6.md) - [conclusion](conclusion.md)
 
 The asynchronous scheduling is nice, but asynchronous stuff is hard! A lot of
 stuff can happen during the gap between the moment a rendering is scheduled,
@@ -96,10 +96,10 @@ process.
 
 ## Full code
 
-This section was short, and you may be wondering why we didn't expose a hook or
+This chapter is short, and you may be wondering why we didn't expose a hook or
 something to allow the developer to take advantage of the lifecycle of the
 component. The answer to that question is that we will do it, but in the next
-section!
+chapter!
 
 ```js
 function render(Comp, target) {
@@ -235,4 +235,4 @@ function useState(value) {
 
 ---
 
-Quick links: [start](readme.md) - [part 1](part1.md) - [part 2](part2.md) - [part 3](part3.md) - **part 4** - [part 5](part5.md) - [part 6](part6.md) - [conclusion](conclusion.md)
+Quick links: [start](readme.md) - [chapter 1](part1.md) - [chapter 2](part2.md) - [chapter 3](part3.md) - **chapter 4** - [chapter 5](part5.md) - [chapter 6](part6.md) - [conclusion](conclusion.md)

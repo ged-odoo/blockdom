@@ -41,7 +41,7 @@ render(Main, document.body);
 ```
 
 Frameworks are full of compromises. Few abstractions are zero-cost, especially
-if there are no compilation step. Many choices can be made for many reasons.
+if there is no compilation step. Many choices can be made for many reasons.
 Developer experience is also a valid concern. As such, neither `blockdom` nor
 this toy framework are the perfect answer to what a framework should be.
 
@@ -55,10 +55,10 @@ read a few years ago.
 
 ## Tutorial
 
-- [Part 1: Component System](part1.md)
-- [Part 2: Tagged Templates](part2.md)
-- [Part 3: Reactivity](part3.md)
-- [Part 4: Lifecycle](part4.md)
-- [Part 5: Effects](part5.md)
-- [Part 6: Lists and iterators](part6.md)
+- [Chapter 1: Component System](part1.md)
+- [Chapter 2: Tagged Templates](part2.md)
+- [Chapter 3: Reactivity](part3.md)
+- [Chapter 4: Lifecycle](part4.md)
+- [Chapter 5: Effects](part5.md)
+- [Chapter 6: Lists and iterators](part6.md)
 - [Conclusion](conclusion.md)

@@ -1,6 +1,6 @@
-# Part 3: Reactivity
+# Chapter 3: Reactivity
 
-Quick links: [start](readme.md) - [part 1](part1.md) - [part 2](part2.md) - **part 3** - [part 4](part4.md) - [part 5](part5.md) - [part 6](part6.md) - [conclusion](conclusion.md)
+Quick links: [start](readme.md) - [chapter 1](part1.md) - [chapter 2](part2.md) - **chapter 3** - [chapter 4](part4.md) - [chapter 5](part5.md) - [chapter 6](part6.md) - [conclusion](conclusion.md)
 
 The `tomato` framework so far is pretty nice, but it feels like it is slightly
 too low level for many usecases. To illustrate this, let's have a look at the
@@ -168,14 +168,29 @@ This code keeps track of all pending renderings in a set. This makes sure we
 have no duplicate rendering. And if no rendering is pending, we schedule the
 flush operation to the next animation frame.
 
+We can now use it in the `useState` function:
+
+```js
+function useState(value) {
+  let renderFn = currentRenderFn;
+
+  let state = () => value;
+  let setState = (newValue) => {
+    value = newValue;
+    scheduleRendering(renderFn);
+  };
+  return [state, setState];
+}
+```
+
 This code is still too naive, because it only batches updates components by
 components. Ideally, we would want renderings batched by _root_: if a rendering
 is initiated by a component and its direct parent, then we only want to render
-the parent. But at least, we handle the common case.
+the parent. But at least, we handle the most common case.
 
 There is still an important issue with the scheduling: a rendering may be
 executed after a component is removed from the DOM... We'll fix that in the
-next part.
+next chapter.
 
 ## Complete code so far
 
@@ -309,4 +324,4 @@ function useState(value) {
 
 ---
 
-Quick links: [start](readme.md) - [part 1](part1.md) - [part 2](part2.md) - **part 3** - [part 4](part4.md) - [part 5](part5.md) - [part 6](part6.md) - [conclusion](conclusion.md)
+Quick links: [start](readme.md) - [chapter 1](part1.md) - [chapter 2](part2.md) - **chapter 3** - [chapter 4](part4.md) - [chapter 5](part5.md) - [chapter 6](part6.md) - [conclusion](conclusion.md)

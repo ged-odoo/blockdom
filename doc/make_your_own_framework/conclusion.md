@@ -1,6 +1,6 @@
 # Conclusion
 
-Quick links: [start](readme.md) - [part 1](part1.md) - [part 2](part2.md) - [part 3](part3.md) - [part 4](part4.md) - [part 5](part5.md) - [part 6](part6.md) - **conclusion**
+Quick links: [start](readme.md) - [chapter 1](part1.md) - [chapter 2](part2.md) - [chapter 3](part3.md) - [chapter 4](part4.md) - [chapter 5](part5.md) - [chapter 6](part6.md) - **conclusion**
 
 The `tomato` framework has a very small API:
 
@@ -243,7 +243,6 @@ function createIterator(key, elemFn, depsFn) {
     return result;
   };
 }
-
 ```
 
 </details>
@@ -522,4 +521,4 @@ it, and maybe make a pull request if you want to share it.
 
 ---
 
-Quick links: [start](readme.md) - [part 1](part1.md) - [part 2](part2.md) - [part 3](part3.md) - [part 4](part4.md) - [part 5](part5.md) - [part 6](part6.md) - **conclusion**
+Quick links: [start](readme.md) - [chapter 1](part1.md) - [chapter 2](part2.md) - [chapter 3](part3.md) - [chapter 4](part4.md) - [chapter 5](part5.md) - [chapter 6](part6.md) - **conclusion**

@@ -1,6 +1,6 @@
-# Part 1: Component system
+# Chapter 1: Component System
 
-Quick links: [start](readme.md) - **part 1** - [part 2](part2.md) - [part 3](part3.md) - [part 4](part4.md) - [part 5](part5.md) - [part 6](part6.md) - [conclusion](conclusion.md)
+Quick links: [start](readme.md) - **chapter 1** - [chapter 2](part2.md) - [chapter 3](part3.md) - [chapter 4](part4.md) - [chapter 5](part5.md) - [chapter 6](part6.md) - [conclusion](conclusion.md)
 
 ## First Attempt
 
@@ -37,11 +37,11 @@ This is a working example. It is alive, maintains an internal state, and update
 itself whenever we click on the button. However, there are some issues with this
 code:
 
-- first, the "business" code is mixed with the "plumbing" code
+- first, the "business" code is mixed with the "plumbing" code,
 - the code is not reusable. We cannot easily create two counters without changing
-  everything
+  everything,
 - there is no scalable way of improving this application: if we want to add other
-  features, there is no obvious way to do it
+  features, there is no obvious way to do it.
 
 Clearly, the situation will be much improved if we could separate the "counter"
 code from the rest.
@@ -83,8 +83,8 @@ stateless. However, our counter component is stateful.
 The state has to live somewhere. It could be global (but then, we cannot
 create a new counter), or in a class, object or closure.
 
-It seems to me that the classical solution to this issue is a closure. So let's
-see what it looks like:
+It seems to me that a classical solution to this issue is a closure. So let's
+see what it could look like:
 
 ```js
 function Counter() {
@@ -149,8 +149,8 @@ Now the `Counter` component is neatly separated from the rest of the application
 ## Iteration 2: factorize common framework code
 
 So far, we actually do not really have a framework. The code is still a low level
-call to the `mount` and `patch` methods. But clearly, every single application
-in our framework will need to perform the same task. So, let's start by creating
+call to the `mount` and `patch` methods. And clearly, every single application
+in our framework will need to perform the exact same task. So, let's start by creating
 a simple method to mount and update the application.
 
 Before that, we need a catchy name for our framework. I have no imagination
@@ -191,7 +191,7 @@ function Counter(render) {
 render(Counter, document.body);
 ```
 
-Now the application is really completely concerned with its own business logic.
+Now the application code is really completely focused on its own business logic.
 
 ## Iteration 3 : introducing sub components
 
@@ -201,7 +201,7 @@ allow that. We want a main component that will contain a `Counter` component.
 Something like this:
 
 ```js
-// does not work!!!
+// does not work yet!!!
 function Main() {
   const main = createBlock(`
     <div>
@@ -217,8 +217,8 @@ render(Main, document.body);
 The problem here is that `Counter` is not a virtual node, so `blockdom` does not
 know what to do with it. This can be solved by wrapping it in a function: `component(Counter)` that returns a virtual node.
 
-Here, we need some knowledge of how our virtual dom works. The upside is that
-it is not very difficult. Here is a naive code to get started:
+Here, we need some more specialized knowledge of how our virtual dom works.
+The upside is that it is not very difficult. Here is a naive code to get started:
 
 ```js
 class VComponent {
@@ -229,7 +229,7 @@ class VComponent {
 
   mount(parent, afterNode) {
     this.instance = this.C();
-    this.node = this.instance!();
+    this.node = this.instance();
     this.node.mount(parent, afterNode);
   }
 
@@ -237,8 +237,7 @@ class VComponent {
     this.node.moveBefore(other ? other.node : null, afterNode);
   }
 
-  patch() {
-  }
+  patch() {}
 
   beforeRemove() {
     this.node.beforeRemove();
@@ -353,13 +352,13 @@ function render(Comp, target) {
 }
 ```
 
-It is shorter also.
+It is simpler and shorter.
 
 ## Iteration 5: adding support for props
 
 Our `tomato` framework is for now useless in practice: we need a way to pass
 information from a component to a subcomponent. It is however quite simple to
-add: we just need to add a `props` object, and give it to the closure.
+add: we just need to add a `props` object and give it to the closure.
 
 Here is the full code of our updated `tomato` framework look like now:
 
@@ -430,10 +429,10 @@ render(Main, document.body);
 ```
 
 And it's a wrap! We have a working framework, that could be used to write real
-applications. Well, it still is quite low level, and most developers would
-expect a better experience/more features. That's what the next few sections are
+applications. Well, it still is quite low level and most developers would
+expect a better experience/more features. That's what the next few chapters are
 about!
 
 ---
 
-Quick links: [start](readme.md) - **part 1** - [part 2](part2.md) - [part 3](part3.md) - [part 4](part4.md) - [part 5](part5.md) - [part 6](part6.md) - [conclusion](conclusion.md)
+Quick links: [start](readme.md) - **chapter 1** - [chapter 2](part2.md) - [chapter 3](part3.md) - [chapter 4](part4.md) - [chapter 5](part5.md) - [chapter 6](part6.md) - [conclusion](conclusion.md)

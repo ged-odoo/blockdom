@@ -1,6 +1,6 @@
-# Part 2: Tagged Templates
+# Chapter 2: Tagged Templates
 
-Quick links: [start](readme.md) - [part 1](part1.md) - **part 2** - [part 3](part3.md) - [part 4](part4.md) - [part 5](part5.md) - [part 6](part6.md) - [conclusion](conclusion.md)
+Quick links: [start](readme.md) - [chapter 1](part1.md) - **chapter 2** - [chapter 3](part3.md) - [chapter 4](part4.md) - [chapter 5](part5.md) - [chapter 6](part6.md) - [conclusion](conclusion.md)
 
 We already have a working framework. It can define components, handlers, update
 itself, and in general do what we expect.
@@ -11,6 +11,7 @@ the closure. It may be a small detail, but I would prefer to write code looking
 like this:
 
 ```js
+// does not work yet!!!
 function Hello(render) {
   return (name) => html`<p>Hello ${name}</p>`;
 }
@@ -18,7 +19,7 @@ function Hello(render) {
 function Main() {
   const main = createBlock();
 
-  return () => html` <div>${component(Hello, "tomato")}</div>`;
+  return () => html`<div>${component(Hello, "tomato")}</div>`;
 }
 ```
 
@@ -93,7 +94,7 @@ So, we can use it directly as a cache key, but then, we need to insert it in a
 might as well free memory if the application code does something funky).
 
 To answer the second question, let's simply add a template function: a function
-that takes the `args` list, and return a block. The main issue is that `blockdom`
+that takes the `args` list, and returns a block. The main issue is that `blockdom`
 internally uses 2 lists: one list for data, and one list for children, but the
 `args` from the template string mixes them together. It would be simpler if
 `blockdom` could take a single list.
@@ -276,4 +277,4 @@ imagine writing an application with such a framework.
 
 ---
 
-Quick links: [start](readme.md) - [part 1](part1.md) - **part 2** - [part 3](part3.md) - [part 4](part4.md) - [part 5](part5.md) - [part 6](part6.md) - [conclusion](conclusion.md)
+Quick links: [start](readme.md) - [chapter 1](part1.md) - **chapter 2** - [chapter 3](part3.md) - [chapter 4](part4.md) - [chapter 5](part5.md) - [chapter 6](part6.md) - [conclusion](conclusion.md)

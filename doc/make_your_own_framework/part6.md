@@ -1,6 +1,6 @@
-# Part 6: Lists and iterators
+# Chapter 6: Lists and iterators
 
-Quick links: [start](readme.md) - [part 1](part1.md) - [part 2](part2.md) - [part 3](part3.md) - [part 4](part4.md) - [part 5](part5.md) - **part 6** - [conclusion](conclusion.md)
+Quick links: [start](readme.md) - [chapter 1](part1.md) - [chapter 2](part2.md) - [chapter 3](part3.md) - [chapter 4](part4.md) - [chapter 5](part5.md) - **chapter 6** - [conclusion](conclusion.md)
 
 We have a very good base for a framework, but there is a small detail that may
 be annoying: when we need to display list of elements, we need to use `blockdom`
@@ -142,6 +142,9 @@ class VComponent {
     this.node = this.instance(this.props);
     this.node.mount(parent, afterNode);
     this.isParent = currentVNode !== this;
+    for (let effect of this.effects) {
+      effect.perform();
+    }
   }
 
   moveBefore(other, afterNode) {
@@ -281,7 +284,6 @@ class Effect {
     this.fn = effect;
     this.depsFn = depsFn;
     this.deps = this.depsFn() || [];
-    this.perform();
   }
   checkDirty() {
     let deps = this.deps;
@@ -354,4 +356,4 @@ function createIterator(key, elemFn, depsFn) {
 
 ---
 
-Quick links: [start](readme.md) - [part 1](part1.md) - [part 2](part2.md) - [part 3](part3.md) - [part 4](part4.md) - [part 5](part5.md) - **part 6** - [conclusion](conclusion.md)
+Quick links: [start](readme.md) - [chapter 1](part1.md) - [chapter 2](part2.md) - [chapter 3](part3.md) - [chapter 4](part4.md) - [chapter 5](part5.md) - **chapter 6** - [conclusion](conclusion.md)

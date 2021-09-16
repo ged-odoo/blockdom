@@ -1,6 +1,6 @@
-# Part 5: Effects
+# Chapter 5: Effects
 
-Quick links: [start](readme.md) - [part 1](part1.md) - [part 2](part2.md) - [part 3](part3.md) - [part 4](part4.md) - **part 5** - [part 6](part6.md) - [conclusion](conclusion.md)
+Quick links: [start](readme.md) - [chapter 1](part1.md) - [chapter 2](part2.md) - [chapter 3](part3.md) - [chapter 4](part4.md) - **chapter 5** - [chapter 6](part6.md) - [conclusion](conclusion.md)
 
 So far, we have a pretty nice base: we can define components, use templates,
 we have reactive state with `useState`. But there is still a pretty large
@@ -58,6 +58,11 @@ for the dependencies: `tomato` can call that function and get updated dependenci
 // in VComponent constructor:
 this.effects = [];
 
+// at the end of VComponent mount:
+for (let effect of this.effects) {
+  effect.perform();
+}
+
 // somewhere else:
 const NO_OP = () => {};
 
@@ -66,7 +71,6 @@ class Effect {
     this.fn = effect;
     this.depsFn = depsFn;
     this.deps = this.depsFn() || [];
-    this.perform();
   }
   checkDirty() {
     let deps = this.deps;
@@ -153,9 +157,39 @@ function Main() {
 
 Notice that there are two effects, one with a dependency, and another without.
 
+## Common lifecycle hooks and useEffect
+
+Many frameworks provide access to more detailed lifecycle methods, such as
+`mounted`, or `destroyed`. However, React showed with `useEffect` that we could
+have a (slightly more complicated) single abstraction that can replace all those
+lifecycle methods, at a negligible cost.
+
+So, it is probably not necessary to define those other lifecycle methods, but if
+one really wanted, we could do something like this:
+
+```js
+function onMounted(fn) {
+  useEffect(fn, () => []);
+}
+
+function onDestroyed(fn) {
+  useEffect(
+    () => fn,
+    () => []
+  );
+}
+```
+
+It's interesting to understand how they are defined: each of these effects declare
+an empty list as dependency, which means that they will only be executed once.
+For the `onMounted` hook, we simply call the function immediately (so, it is
+called when the component is mounted). For the destroyed hook, the trick is to
+return a _cleanup_ function which is therefore executed just before being
+destroyed.
+
 ## Full Code
 
-To conclude this section, here is the full 160 lines of code for the `tomato`
+To conclude this chapter, here is the full 160 lines of code for the `tomato`
 framework:
 
 ```js
@@ -182,6 +216,9 @@ class VComponent {
     this.node = this.instance(this.props);
     this.node.mount(parent, afterNode);
     this.isParent = currentVNode !== this;
+    for (let effect of this.effects) {
+      effect.perform();
+    }
   }
 
   moveBefore(other, afterNode) {
@@ -304,7 +341,6 @@ class Effect {
     this.fn = effect;
     this.depsFn = depsFn;
     this.deps = this.depsFn() || [];
-    this.perform();
   }
   checkDirty() {
     let deps = this.deps;
@@ -328,4 +364,4 @@ function useEffect(effect, depsFn) {
 
 ---
 
-Quick links: [start](readme.md) - [part 1](part1.md) - [part 2](part2.md) - [part 3](part3.md) - [part 4](part4.md) - **part 5** - [part 6](part6.md) - [conclusion](conclusion.md)
+Quick links: [start](readme.md) - [chapter 1](part1.md) - [chapter 2](part2.md) - [chapter 3](part3.md) - [chapter 4](part4.md) - **chapter 5** - [chapter 6](part6.md) - [conclusion](conclusion.md)

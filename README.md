@@ -30,6 +30,9 @@ yarn add blockdom
 **CDN**
 ```js
 https://unpkg.com/blockdom@{VERSION}/dist/blockdom.iife.min.js
+
+// for the latest version
+https://unpkg.com/blockdom/dist/blockdom.iife.min.js
 ```
 
 ## Documentation

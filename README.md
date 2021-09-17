@@ -1,3 +1,7 @@
+[![Open Source Love](https://badges.frapsoft.com/os/mit/mit.svg?v=102)](https://opensource.org/licenses/MIT)
+[![npm version](https://badge.fury.io/js/blockdom.svg)](https://badge.fury.io/js/blockdom)
+[![Downloads](https://img.shields.io/npm/dm/blockdom.svg)](https://www.npmjs.com/package/blockdom)
+
 # blockdom
 
 _Probably the fastest virtual dom library in the world_
@@ -13,6 +17,20 @@ Note that it is not a framework. It does not even have the concept of components
 `blockdom` is intended to be a lower level layer of abstraction, on top of which
 other frameworks could be added. See the documentation for a tutorial on that
 topic.
+
+## How to Install
+
+**NPM**
+
+```js
+npm i blockdom
+yarn add blockdom
+```
+
+**CDN**
+```js
+https://unpkg.com/blockdom@{VERSION}/dist/blockdom.iife.min.js
+```
 
 ## Documentation
 

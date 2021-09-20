@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### 0.9.19 (2021-09-20)
+
+
+### Bug Fixes
+
+* use correct index for subchilds in some cases ([#31](https://github.com/ged-odoo/blockdom/issues/31)) ([1b0d307](https://github.com/ged-odoo/blockdom/commit/1b0d30789a51ba2eab38d0ff215da6cf5a211823))
+
 ### 0.9.18 (2021-09-17)
 
 ### 0.9.17 (2021-09-17)

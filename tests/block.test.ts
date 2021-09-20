@@ -128,6 +128,15 @@ describe("sub blocks", () => {
     expect(fixture.innerHTML).toBe("<div><p>1</p><p>yip yip</p><p>2</p></div>");
   });
 
+  test("block with text, subblock and siblings", async () => {
+    let block1 = createBlock(`<div><p>before<block-child-0/>after</p><block-child-1/></div>`);
+
+    let tree = block1([], [text("water"), text("fire")]);
+
+    mount(tree, fixture);
+    expect(fixture.innerHTML).toBe("<div><p>beforewaterafter</p>fire</div>");
+  });
+
   test("block with conditional child", async () => {
     const block1 = createBlock("<div><p><block-child-0/></p></div>");
     const block2 = createBlock("<span>foo</span>");

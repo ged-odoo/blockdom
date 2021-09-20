@@ -114,7 +114,7 @@ then processes the block template, find all these special tags/attributes and ge
 fast functions that will create and/or update these values. The number corresponds
 to the index of the data given when the block is constructed.
 
-The `examples` folder contains the complete code for this example.
+The [`examples`](examples) folder contains the complete code for this example.
 
 ## About this project
 

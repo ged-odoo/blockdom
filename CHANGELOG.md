@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### 0.9.20 (2021-09-20)
+
+
+### Bug Fixes
+
+* properly handle 0 or undefined as class attribute ([#32](https://github.com/ged-odoo/blockdom/issues/32)) ([64879db](https://github.com/ged-odoo/blockdom/commit/64879db81cdf1b0170f01b04d63b2ff23c15e43c))
+
 ### 0.9.19 (2021-09-20)
 
 

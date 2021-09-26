@@ -44,7 +44,7 @@ this.isDestroyed = true;
 
 // and in patch, replace code by:
 if (!this.isDestroyed) {
-  this.node.patch(this.instance(this.props), true);
+  this.node.patch(this.instance(other.props), true);
 }
 ```
 
@@ -80,7 +80,7 @@ this.isParent = currentVNode !== this;
 // in patch, replace content by:
 if (!this.isDestroyed) {
   current = currentVNode;
-  this.node.patch(this.instance(this.props), this.isParent);
+  this.node.patch(this.instance(other.props), this.isParent);
   this.isParent = this.isParent || current === currentVNode;
 }
 ```
@@ -130,10 +130,10 @@ class VComponent {
     this.node.moveBefore(other ? other.node : null, afterNode);
   }
 
-  patch() {
+  patch(other) {
     if (!this.isDestroyed) {
       let current = currentVNode;
-      this.node.patch(this.instance(this.props), this.isParent);
+      this.node.patch(this.instance(other.props), this.isParent);
       this.isParent = this.isParent || current === currentVNode;
     }
   }

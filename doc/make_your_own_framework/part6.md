@@ -151,11 +151,11 @@ class VComponent {
     this.node.moveBefore(other ? other.node : null, afterNode);
   }
 
-  patch() {
+  patch(other) {
     if (!this.isDestroyed) {
       let current = currentVNode;
       let dirtyEffects = this.effects.filter((e) => e.checkDirty());
-      this.node.patch(this.instance(this.props), this.isParent);
+      this.node.patch(this.instance(other.props), this.isParent);
       for (let effect of dirtyEffects) {
         effect.perform();
       }

@@ -35,17 +35,20 @@ class VComponent {
     this.node = this.instance(this.props);
     this.node.mount(parent, afterNode);
     this.isParent = currentVNode !== this;
+    for (let effect of this.effects) {
+      effect.perform();
+    }
   }
 
   moveBefore(other, afterNode) {
     this.node.moveBefore(other ? other.node : null, afterNode);
   }
 
-  patch() {
+  patch(other) {
     if (!this.isDestroyed) {
       let current = currentVNode;
       let dirtyEffects = this.effects.filter((e) => e.checkDirty());
-      this.node.patch(this.instance(this.props), this.isParent);
+      this.node.patch(this.instance(other.props), this.isParent);
       for (let effect of dirtyEffects) {
         effect.perform();
       }

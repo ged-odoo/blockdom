@@ -385,8 +385,8 @@ class VComponent {
     this.node.moveBefore(other ? other.node : null, afterNode);
   }
 
-  patch() {
-    this.node.patch(this.instance(this.props));
+  patch(other) {
+    this.node.patch(this.instance(other.props));
   }
 
   beforeRemove() {

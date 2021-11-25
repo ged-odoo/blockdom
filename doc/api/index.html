@@ -1,0 +1,92 @@
+<!DOCTYPE html><html class="default"><head><meta charSet="utf-8"/><meta http-equiv="x-ua-compatible" content="IE=edge"/><title>blockdom</title><meta name="description" content="Documentation for blockdom"/><meta name="viewport" content="width=device-width, initial-scale=1"/><link rel="stylesheet" href="assets/style.css"/><link rel="stylesheet" href="assets/highlight.css"/><script async src="assets/search.js" id="search-script"></script></head><body><script>document.body.classList.add(localStorage.getItem("tsd-theme") || "os")</script><header><div class="tsd-page-toolbar"><div class="container"><div class="table-wrap"><div class="table-cell" id="tsd-search" data-base="."><div class="field"><label for="tsd-search-field" class="tsd-widget search no-caption">Search</label><input type="text" id="tsd-search-field"/></div><ul class="results"><li class="state loading">Preparing search index...</li><li class="state failure">The search index is not available</li></ul><a href="index.html" class="title">blockdom</a></div><div class="table-cell" id="tsd-widgets"><div id="tsd-filter"><a href="#" class="tsd-widget options no-caption" data-toggle="options">Options</a><div class="tsd-filter-group"><div class="tsd-select" id="tsd-filter-visibility"><span class="tsd-select-label">All</span><ul class="tsd-select-list"><li data-value="public">Public</li><li data-value="protected">Public/Protected</li><li data-value="private" class="selected">All</li></ul></div> <input type="checkbox" id="tsd-filter-inherited" checked/><label class="tsd-widget" for="tsd-filter-inherited">Inherited</label><input type="checkbox" id="tsd-filter-externals" checked/><label class="tsd-widget" for="tsd-filter-externals">Externals</label></div></div><a href="#" class="tsd-widget menu no-caption" data-toggle="menu">Menu</a></div></div></div></div><div class="tsd-page-title"><div class="container"><h1>blockdom</h1></div></div></header><div class="container container-main"><div class="row"><div class="col-8 col-content"><div class="tsd-panel tsd-typography"><p><a href="https://opensource.org/licenses/MIT"><img src="https://badges.frapsoft.com/os/mit/mit.svg?v=102" alt="Open Source Love"></a>
+<a href="https://badge.fury.io/js/blockdom"><img src="https://badge.fury.io/js/blockdom.svg" alt="npm version"></a>
+<a href="https://www.npmjs.com/package/blockdom"><img src="https://img.shields.io/npm/dm/blockdom.svg" alt="Downloads"></a></p>
+
+<a href="#blockdom" id="blockdom" style="color: inherit; text-decoration: none;">
+  <h1>blockdom</h1>
+</a>
+<p><em>Probably the fastest virtual dom library in the world</em></p>
+<p><code>blockdom</code> is a very fast virtual dom library. Its main selling
+point is that it does not represent DOM element by element, but instead block by
+block, where a block is an element with all its static content and some special
+tags to indicate dynamic content. This allows blockdom to use <code>cloneNode(true)</code>
+on blocks and speed up the diff process, since the vdom tree is much smaller.</p>
+<p>It features blocks, supports fragments, manage synthetic event handlers and more.
+Note that it is not a framework. It does not even have the concept of components.
+<code>blockdom</code> is intended to be a lower level layer of abstraction, on top of which
+other frameworks could be added. See the documentation for a tutorial on that
+topic.</p>
+
+<a href="#how-to-install" id="how-to-install" style="color: inherit; text-decoration: none;">
+  <h2>How to Install</h2>
+</a>
+<p><strong>NPM</strong></p>
+<pre><code class="language-js"><span class="hl-0">npm</span><span class="hl-1"> </span><span class="hl-0">i</span><span class="hl-1"> </span><span class="hl-0">blockdom</span><br/><span class="hl-0">yarn</span><span class="hl-1"> </span><span class="hl-0">add</span><span class="hl-1"> </span><span class="hl-0">blockdom</span>
+</code></pre>
+<p><strong>CDN</strong></p>
+<pre><code class="language-js"><span class="hl-2">https</span><span class="hl-1">:</span><span class="hl-3">//unpkg.com/blockdom@{VERSION}/dist/blockdom.iife.min.js</span><br/><br/><span class="hl-3">// for the latest version</span><br/><span class="hl-2">https</span><span class="hl-1">:</span><span class="hl-3">//unpkg.com/blockdom/dist/blockdom.iife.min.js</span>
+</code></pre>
+
+<a href="#documentation" id="documentation" style="color: inherit; text-decoration: none;">
+  <h2>Documentation</h2>
+</a>
+<ul>
+<li><a href="doc/reference.md">Reference documentation</a></li>
+<li><a href="doc/extending_blockdom.md">Extending blockdom</a></li>
+<li><a href="doc/performance_notes.md">Performance Notes</a></li>
+<li><a href="doc/make_your_own_framework/readme.md">Tutorial: make your own framework</a> (<a href="doc/make_your_own_framework/part1.md">chapter 1</a>, <a href="doc/make_your_own_framework/part2.md">chapter 2</a>, <a href="doc/make_your_own_framework/part3.md">chapter 3</a>, <a href="doc/make_your_own_framework/part4.md">chapter 4</a>, <a href="doc/make_your_own_framework/part5.md">chapter 5</a>, <a href="doc/make_your_own_framework/part6.md">chapter 6</a>, <a href="doc/make_your_own_framework/conclusion.md">conclusion</a>)</li>
+</ul>
+
+<a href="#examples" id="examples" style="color: inherit; text-decoration: none;">
+  <h2>Examples</h2>
+</a>
+<p>Instead of doing something like <code>h(&#39;div&#39;, {}, [...some children])</code>, we can
+work in blockdom with a larger unit of dom. For example:</p>
+<pre><code class="language-js"><span class="hl-3">// create block types</span><br/><span class="hl-4">const</span><span class="hl-1"> </span><span class="hl-5">block</span><span class="hl-1"> = </span><span class="hl-6">createBlock</span><span class="hl-1">(</span><span class="hl-7">`&lt;div class=&quot;some-class&quot;&gt;&lt;p&gt;hello&lt;/p&gt;&lt;blockdom-child-0/&gt;&lt;/div&gt;`</span><span class="hl-1">);</span><br/><span class="hl-4">const</span><span class="hl-1"> </span><span class="hl-5">subBlock</span><span class="hl-1"> = </span><span class="hl-6">createBlock</span><span class="hl-1">(</span><span class="hl-7">`&lt;span&gt;some value: &lt;blockdom-text-0/&gt;&lt;/span&gt;`</span><span class="hl-1">);</span><br/><br/><span class="hl-3">// create a blockdom virtual tree</span><br/><span class="hl-4">const</span><span class="hl-1"> </span><span class="hl-5">tree</span><span class="hl-1"> = </span><span class="hl-6">block</span><span class="hl-1">([], [</span><span class="hl-6">subBlock</span><span class="hl-1">([</span><span class="hl-7">&quot;blockdom&quot;</span><span class="hl-1">])]);</span><br/><br/><span class="hl-3">// mount the tree</span><br/><span class="hl-6">mount</span><span class="hl-1">(</span><span class="hl-0">tree</span><span class="hl-1">, </span><span class="hl-0">document</span><span class="hl-1">.</span><span class="hl-0">body</span><span class="hl-1">);</span><br/><br/><span class="hl-3">// result:</span><br/><span class="hl-3">// &lt;div class=&quot;some-class&quot;&gt;&lt;p&gt;hello&lt;/p&gt;&lt;span&gt;some value: blockdom&lt;/span&gt;&lt;/div&gt;</span>
+</code></pre>
+<p>This example shows the <code>mount</code> function. Here is a more interesting example.
+It is a dynamic list of counters, featuring handlers, lists and dynamic content:</p>
+<pre><code class="language-js"><span class="hl-4">const</span><span class="hl-1"> </span><span class="hl-5">counterBlock</span><span class="hl-1"> = </span><span class="hl-6">createBlock</span><span class="hl-1">(</span><span class="hl-7">`</span><br/><span class="hl-7">    &lt;div class=&quot;counter&quot;&gt;</span><br/><span class="hl-7">        &lt;button block-handler-1=&quot;click&quot;&gt;Increment&lt;/button&gt;</span><br/><span class="hl-7">        &lt;span&gt;Value: &lt;block-text-0/&gt;&lt;/span&gt;</span><br/><span class="hl-7">    &lt;/div&gt;`</span><span class="hl-1">);</span><br/><br/><span class="hl-4">const</span><span class="hl-1"> </span><span class="hl-5">mainBlock</span><span class="hl-1"> = </span><span class="hl-6">createBlock</span><span class="hl-1">(</span><span class="hl-7">`</span><br/><span class="hl-7">    &lt;div&gt;</span><br/><span class="hl-7">        &lt;div&gt;&lt;button block-handler-0=&quot;click&quot;&gt;Add a counter&lt;/button&gt;&lt;/div&gt;</span><br/><span class="hl-7">        &lt;div&gt;&lt;block-child-0/&gt;&lt;/div&gt;</span><br/><span class="hl-7">    &lt;/div&gt;`</span><span class="hl-1">);</span><br/><br/><span class="hl-4">const</span><span class="hl-1"> </span><span class="hl-5">state</span><span class="hl-1"> = [{ </span><span class="hl-0">id:</span><span class="hl-1"> </span><span class="hl-8">0</span><span class="hl-1">, </span><span class="hl-0">value:</span><span class="hl-1"> </span><span class="hl-8">3</span><span class="hl-1"> }];</span><br/><br/><span class="hl-4">function</span><span class="hl-1"> </span><span class="hl-6">addCounter</span><span class="hl-1">() {</span><br/><span class="hl-1">  </span><span class="hl-0">state</span><span class="hl-1">.</span><span class="hl-6">push</span><span class="hl-1">({ </span><span class="hl-0">value:</span><span class="hl-1"> </span><span class="hl-8">0</span><span class="hl-1">, </span><span class="hl-0">id:</span><span class="hl-1"> </span><span class="hl-0">state</span><span class="hl-1">.</span><span class="hl-0">length</span><span class="hl-1"> });</span><br/><span class="hl-1">  </span><span class="hl-6">update</span><span class="hl-1">();</span><br/><span class="hl-1">}</span><br/><br/><span class="hl-4">function</span><span class="hl-1"> </span><span class="hl-6">incrementCounter</span><span class="hl-1">(</span><span class="hl-0">id</span><span class="hl-1">) {</span><br/><span class="hl-1">  </span><span class="hl-4">const</span><span class="hl-1"> </span><span class="hl-5">counter</span><span class="hl-1"> = </span><span class="hl-0">state</span><span class="hl-1">.</span><span class="hl-6">find</span><span class="hl-1">((</span><span class="hl-0">c</span><span class="hl-1">) </span><span class="hl-4">=&gt;</span><span class="hl-1"> </span><span class="hl-0">c</span><span class="hl-1">.</span><span class="hl-0">id</span><span class="hl-1"> === </span><span class="hl-0">id</span><span class="hl-1">);</span><br/><span class="hl-1">  </span><span class="hl-0">counter</span><span class="hl-1">.</span><span class="hl-0">value</span><span class="hl-1">++;</span><br/><span class="hl-1">  </span><span class="hl-6">update</span><span class="hl-1">();</span><br/><span class="hl-1">}</span><br/><br/><span class="hl-4">function</span><span class="hl-1"> </span><span class="hl-6">render</span><span class="hl-1">(</span><span class="hl-0">state</span><span class="hl-1">) {</span><br/><span class="hl-1">  </span><span class="hl-4">const</span><span class="hl-1"> </span><span class="hl-5">counters</span><span class="hl-1"> = </span><span class="hl-0">state</span><span class="hl-1">.</span><span class="hl-6">map</span><span class="hl-1">((</span><span class="hl-0">c</span><span class="hl-1">) </span><span class="hl-4">=&gt;</span><span class="hl-1"> {</span><br/><span class="hl-1">    </span><span class="hl-4">const</span><span class="hl-1"> </span><span class="hl-5">handler</span><span class="hl-1"> = [</span><span class="hl-0">incrementCounter</span><span class="hl-1">, </span><span class="hl-0">c</span><span class="hl-1">.</span><span class="hl-0">id</span><span class="hl-1">];</span><br/><span class="hl-1">    </span><span class="hl-9">return</span><span class="hl-1"> </span><span class="hl-6">withKey</span><span class="hl-1">(</span><span class="hl-6">counterBlock</span><span class="hl-1">([</span><span class="hl-0">c</span><span class="hl-1">.</span><span class="hl-0">value</span><span class="hl-1">, </span><span class="hl-0">handler</span><span class="hl-1">]), </span><span class="hl-0">c</span><span class="hl-1">.</span><span class="hl-0">id</span><span class="hl-1">);</span><br/><span class="hl-1">  });</span><br/><span class="hl-1">  </span><span class="hl-9">return</span><span class="hl-1"> </span><span class="hl-6">mainBlock</span><span class="hl-1">([</span><span class="hl-0">addCounter</span><span class="hl-1">], [</span><span class="hl-6">list</span><span class="hl-1">(</span><span class="hl-0">counters</span><span class="hl-1">)]);</span><br/><span class="hl-1">}</span><br/><br/><span class="hl-4">let</span><span class="hl-1"> </span><span class="hl-0">tree</span><span class="hl-1"> = </span><span class="hl-6">render</span><span class="hl-1">(</span><span class="hl-0">state</span><span class="hl-1">);</span><br/><span class="hl-6">mount</span><span class="hl-1">(</span><span class="hl-0">tree</span><span class="hl-1">, </span><span class="hl-0">document</span><span class="hl-1">.</span><span class="hl-0">body</span><span class="hl-1">);</span><br/><br/><span class="hl-4">function</span><span class="hl-1"> </span><span class="hl-6">update</span><span class="hl-1">() {</span><br/><span class="hl-1">  </span><span class="hl-6">patch</span><span class="hl-1">(</span><span class="hl-0">tree</span><span class="hl-1">, </span><span class="hl-6">render</span><span class="hl-1">(</span><span class="hl-0">state</span><span class="hl-1">));</span><br/><span class="hl-1">}</span>
+</code></pre>
+<p>Notice that block types are first created, with special attributes or tags such as
+<code>&lt;block-text-0 /&gt;</code> or <code>block-handler-1=&quot;click&quot;</code>. What happens is that <code>blockdom</code>
+then processes the block template, find all these special tags/attributes and generate
+fast functions that will create and/or update these values. The number corresponds
+to the index of the data given when the block is constructed.</p>
+<p>The <a href="examples"><code>examples</code></a> folder contains the complete code for this example.</p>
+
+<a href="#about-this-project" id="about-this-project" style="color: inherit; text-decoration: none;">
+  <h2>About this project</h2>
+</a>
+<p>In this section, you will find answers to some questions you may have about this
+project.</p>
+<ul>
+<li><p><em>Is this virtual dom used in an actual project?</em> Not yet ready, but it is used
+in the current work on Owl version 2. The Owl framework 1.x (github.com/odoo/owl)
+is based on a fork of snabbdom, and as such, does not support fragment. The
+version 2 is not ready yet, but will be based on <code>blockdom</code>.</p>
+</li>
+<li><p><em>This is not a virtual dom, is it?</em> Yes it is. Well, it depends what you mean
+by a virtual dom. It is not a representation of the dom tree element by element,
+but it still is a complete representation of what the dom is looking like. So,
+yes, in that sense, <code>blockdom</code> is a virtual dom.</p>
+</li>
+<li><p><em>Why would you need a virtual dom, in the first place?</em> It depends on your
+needs. Clearly, some frameworks can do very well by using other strategies.
+However, some other frameworks (such as React and owl with their concurrent mode)
+need the ability to split the rendering process in two phases, so we can
+choose to commit a rendering (or not if for some reason it is no longer useful).
+In that case, I do not see how to proceed without a virtual dom.</p>
+</li>
+<li><p><em>This sucks. blockdom is useless/slow because of X/Y</em>. Great, please tell me
+more. I genuinely want to improve this, and helpful criticism is always
+welcome.</p>
+</li>
+</ul>
+
+<a href="#credits" id="credits" style="color: inherit; text-decoration: none;">
+  <h2>Credits</h2>
+</a>
+<p><code>blockdom</code> is inspired by many frameworks: snabbdom, then solid, ivi, stage0 and
+1more. The people behind these projects are incredible.</p>
+</div></div><div class="col-4 col-menu menu-sticky-wrap menu-highlight"><nav class="tsd-navigation primary"><ul><li class="current"><a href="modules.html">Exports</a></li></ul></nav><nav class="tsd-navigation secondary menu-sticky"><ul><li class="tsd-kind-interface tsd-has-type-parameter"><a href="interfaces/VNode.html" class="tsd-kind-icon">VNode</a></li><li class="tsd-kind-type-alias"><a href="modules.html#BDom" class="tsd-kind-icon">BDom</a></li><li class="tsd-kind-variable"><a href="modules.html#config" class="tsd-kind-icon">config</a></li><li class="tsd-kind-function"><a href="modules.html#createBlock" class="tsd-kind-icon">create<wbr/>Block</a></li><li class="tsd-kind-function"><a href="modules.html#html" class="tsd-kind-icon">html</a></li><li class="tsd-kind-function"><a href="modules.html#list" class="tsd-kind-icon">list</a></li><li class="tsd-kind-function"><a href="modules.html#mount" class="tsd-kind-icon">mount</a></li><li class="tsd-kind-function"><a href="modules.html#multi" class="tsd-kind-icon">multi</a></li><li class="tsd-kind-function"><a href="modules.html#patch" class="tsd-kind-icon">patch</a></li><li class="tsd-kind-function"><a href="modules.html#remove" class="tsd-kind-icon">remove</a></li><li class="tsd-kind-function"><a href="modules.html#text" class="tsd-kind-icon">text</a></li><li class="tsd-kind-function"><a href="modules.html#toggler" class="tsd-kind-icon">toggler</a></li><li class="tsd-kind-function"><a href="modules.html#withKey" class="tsd-kind-icon">with<wbr/>Key</a></li></ul></nav></div></div></div><footer class="with-border-bottom"><div class="container"><h2>Legend</h2><div class="tsd-legend-group"><ul class="tsd-legend"><li class="tsd-kind-property tsd-parent-kind-interface"><span class="tsd-kind-icon">Property</span></li><li class="tsd-kind-method tsd-parent-kind-interface"><span class="tsd-kind-icon">Method</span></li></ul></div><h2>Settings</h2><p>Theme <select id="theme"><option value="os">OS</option><option value="light">Light</option><option value="dark">Dark</option></select></p></div></footer><div class="container tsd-generator"><p>Generated using <a href="https://typedoc.org/" target="_blank">TypeDoc</a></p></div><div class="overlay"></div><script src="assets/main.js"></script></body></html>

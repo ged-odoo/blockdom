@@ -254,3 +254,15 @@ Here is a list of every configuration options in `blockdom`:
   `[function, argument]`. Overriding this may be helpful if the code using
   `blockdom` has different needs (for example, checking if a component is still
   alive).
+
+## Namespace
+
+Blockdom supports setting a namespace on a specific bloc, which is useful to
+render SVG elements for example (or xml documents). It is done with the use of
+the `block-ns` directive:
+
+```js
+const SVG_URI = "http://www.w3.org/2000/svg";
+
+const block = createBlock(`<svg block-ns="${SVG_URI}">...</svg`);
+```

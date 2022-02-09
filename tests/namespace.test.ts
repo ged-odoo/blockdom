@@ -69,4 +69,20 @@ describe("namespace", () => {
     expect(one.namespaceURI).toBe("one");
     expect(two.namespaceURI).toBe("two");
   });
+
+  test("namespace is not propagated to siblings", () => {
+    const block = createBlock(`<div><svg block-ns="someNameSpace"><g/></svg><div></div></div>`);
+
+    const fixture = makeTestFixture();
+    mount(block(), fixture);
+
+    expect(fixture.innerHTML).toBe("<div><svg><g></g></svg><div></div></div>");
+    expect(fixture.querySelector("svg")!.namespaceURI).toBe("someNameSpace");
+    expect(fixture.querySelector("g")!.namespaceURI).toBe("someNameSpace");
+    const allDivs = fixture.querySelectorAll("div");
+    expect(Array.from(allDivs).map((el) => el.namespaceURI)).toEqual([
+      "http://www.w3.org/1999/xhtml",
+      "http://www.w3.org/1999/xhtml",
+    ]);
+  });
 });

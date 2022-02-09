@@ -114,6 +114,14 @@ then processes the block template, find all these special tags/attributes and ge
 fast functions that will create and/or update these values. The number corresponds
 to the index of the data given when the block is constructed.
 
+Also, blockdom supports synthetic handlers (meaning: it only setup one actual
+event handler on the body, which is an optimisation). To use this feature, one
+can simply use the `.synthetic` suffix:
+
+```js
+const counterBlock = createBlock(`<button block-handler-1="click.synthetic">Increment</button>`);
+```
+
 The [`examples`](examples) folder contains the complete code for this example.
 
 ## About this project

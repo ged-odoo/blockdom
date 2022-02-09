@@ -1,6 +1,6 @@
 {
   "name": "blockdom",
-  "version": "0.9.22",
+  "version": "0.9.23",
   "description": "virtual dom library",
   "main": "dist/index.js",
   "browser": "dist/blockdom.iife.js",
@@ -20,7 +20,7 @@
     "test:watch": "jest --watch",
     "prettier": "prettier {src/*.ts,src/**/*.ts,tests/*.ts,tests/**/*.ts,doc/*.md,doc/**/*.md,README.md} --write",
     "prepare-benchmark": "bash ./benchmark/run.sh",
-	"typedoc": "typedoc --out doc/api src/index.ts"
+    "typedoc": "typedoc --out doc/api src/index.ts"
   },
   "repository": {
     "type": "git",

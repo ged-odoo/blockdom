@@ -17,7 +17,17 @@ afterEach(() => {
 
 describe("adding/patching blocks", () => {
   test("simple block", async () => {
-    const block = createBlock("<div>foo</div>");
+    const block = createBlock(" <div>foo</div>");
+    const tree = block();
+    expect(tree.el).toBe(undefined);
+
+    mount(tree, fixture);
+    expect(tree.el).not.toBe(undefined);
+    expect(fixture.innerHTML).toBe("<div>foo</div>");
+  });
+
+  test("simple block: ignore trailing and leading spaces", async () => {
+    const block = createBlock(" <div>foo</div>  ");
     const tree = block();
     expect(tree.el).toBe(undefined);
 

@@ -53,7 +53,7 @@ export function createBlock(str: string): BlockType {
   }
 
   // step 0: prepare html base element
-  const doc = new DOMParser().parseFromString(`<t>${str}</t>`, "text/xml");
+  const doc = new DOMParser().parseFromString(`<t>${str.trim()}</t>`, "text/xml");
   const node = doc.firstChild!.firstChild!;
   if (config.shouldNormalizeDom) {
     normalizeNode(node as any);

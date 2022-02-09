@@ -125,7 +125,7 @@ export class VMulti {
   }
 
   toString(): string {
-    return this.children.map((c) => c!.toString()).join("");
+    return this.children.map((c) => (c ? c!.toString() : "")).join("");
   }
 }
 

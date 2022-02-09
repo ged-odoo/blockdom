@@ -1,4 +1,4 @@
-import { createBlock, html, mount, patch, text } from "../src";
+import { createBlock, html, mount, multi, patch, text } from "../src";
 import { makeTestFixture } from "./helpers";
 
 //------------------------------------------------------------------------------
@@ -44,5 +44,17 @@ describe("html block", () => {
 
     patch(tree, html(`<tr><td>potato</td></tr>`));
     expect(fixture.innerHTML).toBe("<tr><td>potato</td></tr>");
+  });
+
+  test("html vnode can be used in a multi, and updated", () => {
+    const tree = multi([html("<p>a</p>"), html("<p>b</p>")]);
+    mount(tree, fixture);
+    expect(fixture.innerHTML).toBe("<p>a</p><p>b</p>");
+
+    patch(tree, multi([html("<p>b</p>"), html("<p>a</p>")]));
+    expect(fixture.innerHTML).toBe("<p>b</p><p>a</p>");
+
+    patch(tree, multi([html("<p>a</p>"), html("<p>b</p>")]));
+    expect(fixture.innerHTML).toBe("<p>a</p><p>b</p>");
   });
 });

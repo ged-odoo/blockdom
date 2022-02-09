@@ -60,6 +60,7 @@ First, let us talk about the various vnode types:
 | `text`    | a simple vnode representing a text node                                                |
 | `toggler` | a container node that allows switching dynamically between different type of subnodes  |
 | `html`    | represent an arbitrary html content                                                    |
+| `comment` | represent a html comment                                                               |
 
 ### Blocks
 
@@ -223,6 +224,16 @@ const tree = html("<div>hey</div>");
 This should be avoided most of the time. However, it happens that we need to
 display some (hopefully safe/sanitized) html coming from the database. In that
 case, the `html` vnode type is here to perform the job.
+
+### comment
+
+One can insert a comment with the `comment` block type:
+
+```js
+// represents 3 text nodes: blackyellowred
+const tree = comment("some text");
+// will be rendered as: "<!--some text-->"
+```
 
 ## Configuration
 

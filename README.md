@@ -122,6 +122,12 @@ can simply use the `.synthetic` suffix:
 const counterBlock = createBlock(`<button block-handler-1="click.synthetic">Increment</button>`);
 ```
 
+It is also possible to setup an handler in `capture` mode:
+
+```js
+const counterBlock = createBlock(`<button block-handler-1="click.capture">Increment</button>`);
+```
+
 The [`examples`](examples) folder contains the complete code for this example.
 
 ## About this project

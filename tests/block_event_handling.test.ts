@@ -93,6 +93,39 @@ test("can bind two handlers on same node", async () => {
   expect(steps).toEqual(["click", "dblclick"]);
 });
 
+test("two event handlers on same event", async () => {
+  const block = createBlock('<div block-handler-0="click" block-handler-1="click"></div>');
+  let n = 0;
+  let m = 0;
+  const tree = block([() => m++, () => n++]);
+
+  mount(tree, fixture);
+  expect(fixture.innerHTML).toBe("<div></div>");
+
+  expect(m).toBe(0);
+  expect(n).toBe(0);
+  (fixture.firstChild as HTMLDivElement).click();
+  expect(m).toBe(1);
+  expect(n).toBe(1);
+});
+
+test("two synthetic event handlers on same event", async () => {
+  const block = createBlock(
+    '<div block-handler-0="click.synthetic" block-handler-1="click.synthetic"></div>'
+  );
+  let n = 0;
+  let m = 0;
+  const tree = block([() => m++, () => n++]);
+
+  mount(tree, fixture);
+  expect(fixture.innerHTML).toBe("<div></div>");
+
+  expect(m).toBe(0);
+  expect(n).toBe(0);
+  (fixture.firstChild as HTMLDivElement).click();
+  expect(m).toBe(1);
+  expect(n).toBe(1);
+});
 test("two same block nodes with different handlers", async () => {
   const block = createBlock('<div block-handler-0="click"></div>');
   let steps: string[] = [];

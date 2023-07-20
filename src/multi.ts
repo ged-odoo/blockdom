@@ -38,7 +38,22 @@ export class VMulti {
     this.parentEl = parent;
   }
 
-  moveBefore(other: VMulti | null, afterNode: Node | null) {
+  moveBeforeDOMNode(node: Node | null, parent = this.parentEl) {
+    this.parentEl = parent;
+    const children = this.children;
+    const anchors = this.anchors;
+    for (let i = 0, l = children.length; i < l; i++) {
+      let child = children[i];
+      if (child) {
+        child.moveBeforeDOMNode(node, parent);
+      } else {
+        const anchor = anchors![i];
+        nodeInsertBefore.call(parent, anchor, node);
+      }
+    }
+  }
+
+  moveBeforeVNode(other: VMulti | null, afterNode: Node | null) {
     if (other) {
       const next = other!.children[0];
       afterNode = (next ? next.firstNode() : other!.anchors![0]) || null;
@@ -49,7 +64,7 @@ export class VMulti {
     for (let i = 0, l = children.length; i < l; i++) {
       let child = children[i];
       if (child) {
-        child.moveBefore(null, afterNode);
+        child.moveBeforeVNode(null, afterNode);
       } else {
         const anchor = anchors![i];
         nodeInsertBefore.call(parent, anchor, afterNode);

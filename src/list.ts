@@ -38,14 +38,23 @@ class VList {
     this.parentEl = parent;
   }
 
-  moveBefore(other: VList | null, afterNode: Node | null) {
+  moveBeforeDOMNode(node: Node | null, parent = this.parentEl) {
+    this.parentEl = parent;
+    const children = this.children;
+    for (let i = 0, l = children.length; i < l; i++) {
+      children[i].moveBeforeDOMNode(node, parent);
+    }
+    parent!.insertBefore(this.anchor!, node);
+  }
+
+  moveBeforeVNode(other: VList | null, afterNode: Node | null) {
     if (other) {
       const next = other!.children[0];
       afterNode = (next ? next.firstNode() : other!.anchor) || null;
     }
     const children = this.children;
     for (let i = 0, l = children.length; i < l; i++) {
-      children[i].moveBefore(null, afterNode);
+      children[i].moveBeforeVNode(null, afterNode);
     }
     this.parentEl!.insertBefore(this.anchor!, afterNode);
   }
@@ -66,7 +75,7 @@ class VList {
       patch: cPatch,
       remove: cRemove,
       beforeRemove,
-      moveBefore: cMoveBefore,
+      moveBeforeVNode: cMoveBefore,
       firstNode: cFirstNode,
     } = proto;
 
@@ -98,7 +107,6 @@ class VList {
     let endVn2 = ch2[endIdx2];
 
     let mapping: any = undefined;
-    // let noFullRemove = this.hasNoComponent;
 
     while (startIdx1 <= endIdx1 && startIdx2 <= endIdx2) {
       // -------------------------------------------------------------------

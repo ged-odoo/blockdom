@@ -1,12 +1,4 @@
-import {
-  attrsSetter,
-  attrsUpdater,
-  createAttrUpdater,
-  isProp,
-  makePropSetter,
-  setClass,
-  updateClass,
-} from "./attributes";
+import { attrsSetter, attrsUpdater, createAttrUpdater, setClass, updateClass } from "./attributes";
 import { config } from "./config";
 import { createEventHandler } from "./events";
 import type { VNode } from "./index";
@@ -23,6 +15,13 @@ const nodeGetFirstChild = getDescriptor(nodeProto, "firstChild").get!;
 const nodeGetNextSibling = getDescriptor(nodeProto, "nextSibling").get!;
 
 const NO_OP = () => {};
+
+function makePropSetter(name: string): Setter<HTMLElement> {
+  return function setProp(this: HTMLElement, value: any) {
+    // support 0, fallback to empty string for other falsy values
+    (this as any)[name] = value === 0 ? 0 : value ? value.valueOf() : "";
+  };
+}
 
 // -----------------------------------------------------------------------------
 // Main compiler code
@@ -100,7 +99,7 @@ function normalizeNode(node: HTMLElement | Text) {
 interface DynamicInfo {
   idx: number;
   refIdx?: number;
-  type: "text" | "child" | "handler" | "attribute" | "attributes" | "ref";
+  type: "text" | "child" | "handler" | "attribute" | "attributes" | "property" | "ref";
   isOnlyChild?: boolean;
   name?: string;
   tag?: string;
@@ -156,6 +155,15 @@ function buildTree(
           : document.createElement(tagName);
       }
       if (el instanceof Element) {
+        if (!domParentTree) {
+          // some html elements may have side effects when setting their attributes.
+          // For example, setting the src attribute of an <img/> will trigger a
+          // request to get the corresponding image. This is something that we
+          // don't want at compile time. We avoid that by putting the content of
+          // the block in a <template/> element
+          const fragment = document.createElement("template").content;
+          fragment.appendChild(el);
+        }
         for (let i = 0; i < attrs.length; i++) {
           const attrName = attrs[i].name;
           const attrValue = attrs[i].value;
@@ -170,6 +178,14 @@ function buildTree(
             const idx = parseInt(attrName.slice(16), 10);
             info.push({
               type: "attribute",
+              idx,
+              name: attrValue,
+              tag: tagName,
+            });
+          } else if (attrName.startsWith("block-property-")) {
+            const idx = parseInt(attrName.slice(15), 10);
+            info.push({
+              type: "property",
               idx,
               name: attrValue,
               tag: tagName,
@@ -245,7 +261,7 @@ function buildTree(
       };
     }
   }
-  throw new Error("boom");
+  throw new Error("boom")
 }
 
 function addRef(tree: IntermediateTree) {
@@ -367,15 +383,22 @@ function updateCtx(ctx: BlockCtx, tree: IntermediateTree) {
           };
         }
         break;
+      case "property": {
+        const refIdx = info.refIdx!;
+        const setProp = makePropSetter(info.name!);
+        ctx.locations.push({
+          idx: info.idx,
+          refIdx,
+          setData: setProp,
+          updateData: setProp,
+        });
+        break;
+      }
       case "attribute": {
         const refIdx = info.refIdx!;
         let updater: any;
         let setter: any;
-        if (isProp(info.tag!, info.name!)) {
-          const setProp = makePropSetter(info.name!);
-          setter = setProp;
-          updater = setProp;
-        } else if (info.name === "class") {
+        if (info.name === "class") {
           setter = setClass;
           updater = updateClass;
         } else {
@@ -507,9 +530,13 @@ function createBlockClass(template: HTMLElement, ctx: BlockCtx): BlockClass {
       return this.el!;
     }
 
-    moveBefore(other: Block | null, afterNode: Node | null) {
-      const target = other ? other.el! : afterNode;
-      nodeInsertBefore.call(this.parentEl, this.el!, target);
+    moveBeforeDOMNode(node: Node | null, parent = this.parentEl) {
+      this.parentEl = parent;
+      nodeInsertBefore.call(parent, this.el!, node);
+    }
+
+    moveBeforeVNode(other: Block | null, afterNode: Node | null) {
+      nodeInsertBefore.call(this.parentEl, this.el!, other ? other.el! : afterNode);
     }
 
     toString() {

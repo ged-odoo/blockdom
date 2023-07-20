@@ -149,7 +149,7 @@ test("class attribute (with a preexisting value", async () => {
 describe("properties", () => {
   test("input with value attribute", () => {
     // render input with initial value
-    const block = createBlock(`<input block-attribute-0="value"/>`);
+    const block = createBlock(`<input block-property-0="value"/>`);
 
     const tree = block(["zucchini"]);
     mount(tree, fixture);
@@ -169,9 +169,9 @@ describe("properties", () => {
     expect(input.value).toBe("potato");
   });
 
-  test("input type=checkbox with checked attribute", () => {
+  test("input type=checkbox with checked property", () => {
     // render input with initial value
-    const block = createBlock(`<input type="checkbox" block-attribute-0="checked"/>`);
+    const block = createBlock(`<input type="checkbox" block-property-0="checked"/>`);
 
     const tree = block([true]);
     mount(tree, fixture);

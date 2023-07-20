@@ -6,10 +6,12 @@ export { list } from "./list";
 export { multi } from "./multi";
 export { text, comment } from "./text";
 export { html } from "./html";
+export { createCatcher } from "./event_catcher";
 
 export interface VNode<T = any> {
   mount(parent: HTMLElement, afterNode: Node | null): void;
-  moveBefore(other: T | null, afterNode: Node | null): void;
+  moveBeforeDOMNode(node: Node | null, parent?: HTMLElement): void;
+  moveBeforeVNode(other: T | null, afterNode: Node | null): void;
   patch(other: T, withBeforeRemove: boolean): void;
   beforeRemove(): void;
   remove(): void;

@@ -9,11 +9,11 @@ const characterDataSetData = getDescriptor(characterDataProto, "data").set!;
 const nodeRemoveChild = nodeProto.removeChild;
 
 abstract class VSimpleNode {
-  text: string;
+  text: string | String;
   parentEl?: HTMLElement | undefined;
   el?: any;
 
-  constructor(text: string) {
+  constructor(text: string | String) {
     this.text = text;
   }
 
@@ -23,9 +23,13 @@ abstract class VSimpleNode {
     this.el = node;
   }
 
-  moveBefore(other: VText | null, afterNode: Node | null) {
-    const target = other ? other.el! : afterNode;
-    nodeInsertBefore.call(this.parentEl, this.el!, target);
+  moveBeforeDOMNode(node: Node | null, parent = this.parentEl) {
+    this.parentEl = parent;
+    nodeInsertBefore.call(parent, this.el!, node);
+  }
+
+  moveBeforeVNode(other: VText | null, afterNode: Node | null) {
+    nodeInsertBefore.call(this.parentEl, this.el!, other ? other.el! : afterNode);
   }
 
   beforeRemove() {}
@@ -65,7 +69,7 @@ class VComment extends VSimpleNode {
   patch() {}
 }
 
-export function text(str: string): VNode<VText> {
+export function text(str: string | String): VNode<VText> {
   return new VText(str);
 }
 

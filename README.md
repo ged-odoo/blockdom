@@ -6,6 +6,10 @@
 
 _Probably the fastest virtual dom library in the world_
 
+IMPORTANT: `blockdom` is just a proof of concept and a place to experiment some ideas. This is
+not intended to be used in a real application, no real support will be given!  However, it is
+designed to be the rendering engine of the [Owl framework](https://github/odoo/owl)!
+
 `blockdom` is a very fast virtual dom library. Its main selling
 point is that it does not represent DOM element by element, but instead block by
 block, where a block is an element with all its static content and some special

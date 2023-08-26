@@ -8,7 +8,7 @@ _Probably the fastest virtual dom library in the world!_
 
 IMPORTANT: `blockdom` is just a proof of concept and a place to experiment some ideas. This is
 not intended to be used in a real application, no real support will be given!  However, it is
-designed to be the rendering engine of the [Owl framework](https://github/odoo/owl)!
+designed to be the rendering engine of the [Owl framework](https://github.com/odoo/owl)!
 
 `blockdom` is a very fast virtual dom library. Its main selling
 point is that it does not represent DOM element by element, but instead block by
@@ -150,7 +150,7 @@ In this section, you will find answers to some questions you may have about this
 project.
 
 - _Is this virtual dom used in an actual project?_ Not yet ready, but it is used
-  in the current work on Owl version 2. The Owl framework 1.x (github.com/odoo/owl)
+  in the current work on Owl version 2. The [Owl framework 1.x](https://github.com/odoo/owl)
   is based on a fork of snabbdom, and as such, does not support fragment. The
   version 2 is not ready yet, but will be based on `blockdom`.
 

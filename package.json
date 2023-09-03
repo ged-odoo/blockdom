@@ -14,7 +14,7 @@
   },
   "scripts": {
     "build": "rollup -c",
-    "build:package": "rm -rf dist && tsc",
+    "build:package": "rm -rf dist && npm run build && tsc --emitDeclarationOnly",
     "release": "standard-version",
     "test": "jest",
     "test:watch": "jest --watch",

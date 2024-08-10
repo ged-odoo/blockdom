@@ -4,7 +4,7 @@
 
 # blockdom
 
-_Probably the fastest virtual dom library in the world_
+_Probably the fastest virtual dom library in the world!_
 
 IMPORTANT: `blockdom` is just a proof of concept and a place to experiment some ideas. This is
 not intended to be used in a real application, no real support will be given!  However, it is
@@ -22,23 +22,31 @@ Note that it is not a framework. It does not even have the concept of components
 other frameworks could be added. See the documentation for a tutorial on that
 topic.
 
+
 ## How to Install
 
-**NPM**
+### With Package Managers
 
-```js
-npm i blockdom
+Installing using NPM:
+```bash
+npm install blockdom
+```
+
+Installing using Yarn:
+```
 yarn add blockdom
 ```
 
-**CDN**
-
-```js
+### With a CDN
+```
 https://unpkg.com/blockdom@{VERSION}/dist/blockdom.iife.min.js
+```
 
-// for the latest version
+For using the latest version:
+```
 https://unpkg.com/blockdom/dist/blockdom.iife.min.js
 ```
+
 
 ## Documentation
 
@@ -46,6 +54,7 @@ https://unpkg.com/blockdom/dist/blockdom.iife.min.js
 - [Extending blockdom](doc/extending_blockdom.md)
 - [Performance Notes](doc/performance_notes.md)
 - [Tutorial: make your own framework](doc/make_your_own_framework/readme.md) ([chapter 1](doc/make_your_own_framework/part1.md), [chapter 2](doc/make_your_own_framework/part2.md), [chapter 3](doc/make_your_own_framework/part3.md), [chapter 4](doc/make_your_own_framework/part4.md), [chapter 5](doc/make_your_own_framework/part5.md), [chapter 6](doc/make_your_own_framework/part6.md), [conclusion](doc/make_your_own_framework/conclusion.md))
+
 
 ## Examples
 
@@ -134,13 +143,14 @@ const counterBlock = createBlock(`<button block-handler-1="click.capture">Increm
 
 The [`examples`](examples) folder contains the complete code for this example.
 
+
 ## About this project
 
 In this section, you will find answers to some questions you may have about this
 project.
 
 - _Is this virtual dom used in an actual project?_ Not yet ready, but it is used
-  in the current work on Owl version 2. The Owl framework 1.x (github.com/odoo/owl)
+  in the current work on Owl version 2. The [Owl framework 1.x](https://github.com/odoo/owl)
   is based on a fork of snabbdom, and as such, does not support fragment. The
   version 2 is not ready yet, but will be based on `blockdom`.
 
@@ -159,6 +169,7 @@ project.
 - _This sucks. blockdom is useless/slow because of X/Y_. Great, please tell me
   more. I genuinely want to improve this, and helpful criticism is always
   welcome.
+
 
 ## Credits
 
